@@ -23,9 +23,10 @@ SitemapGenerator::Sitemap.create do
 
   # Column（LP配下）
   Column.find_each do |column|
-    lp = column.genre # 例: "cargo"
+    next unless column.code.present?   # code があるものだけ追加
+    lp = column.genre # 例: "cleaning"
 
-    add "/#{lp}/columns/#{column.id}",
+    add "/#{lp}/columns/#{column.code}",
         lastmod: column.updated_at,
         priority: 0.5
   end

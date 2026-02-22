@@ -2,6 +2,7 @@ class ColumnsController < ApplicationController
   # before_action :authenticate_admin!, except: [:index, :show]
   before_action :set_column, only: [:show, :edit, :update, :destroy, :approve]
   before_action :set_breadcrumbs
+  before_action :set_noindex
 
 def index
   # statusがdraft以外、かつ bodyが空でないものだけを取得
@@ -211,6 +212,10 @@ def generate_from_pillar
 
   def set_column
     @column = Column.friendly.find(params[:id])
+  end
+
+  def set_noindex
+   @noindex = params[:genre].blank?
   end
 
   def set_breadcrumbs
