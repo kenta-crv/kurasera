@@ -2522,3 +2522,15 @@ small {
 .center {
   text-align:center;
 }
+
+
+/* 例: フラッシュメッセージを上部に固定する場合 */
+.alert {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color:rgb(113, 238, 113);
+  color:white;
+  font-weight:bold
+  z-index: 9999;
+}

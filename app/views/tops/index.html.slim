@@ -37,6 +37,11 @@ section.hero-main-section.position-relative(style="background-image: url(#{asset
               h3.hero-main-trial.text-center
                 | ＼まずは無料で見積から／
               = form_with model: @contract, url: contracts_path, local: true, html: { id: "hero-main-top", class: "hero-main-form mt-3 p-4 rounded-3" } do |f|
+                - if @contract.errors.any?
+                 .alert.alert-danger
+                   ul
+                      - @contract.errors.full_messages.each do |message|
+                          li = message
                 .row.g-3
                   .col-12
                     label.form-label.hero-main-label

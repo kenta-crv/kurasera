@@ -12,12 +12,14 @@ def create
   @contract = Contract.new(contract_params)
 
   if @contract.save
-    flash[:notice] = "送信完了しました"
-    redirect_to root_path
-    ContractMailer.received_email(@contract).deliver # 管理者に通知
-    ContractMailer.send_email(@contract).deliver # 送信者に通知
+   ContractMailer.received_email(@contract).deliver_now
+   ContractMailer.send_email(@contract).deliver_now
+   flash[:notice] = "送信完了しました"
+   redirect_to root_path
   else
-    render :new
+    p @contract.errors.full_messages
+    @contracts = Contract.order(created_at: :desc).page(params[:page]) # 必要に応じて
+    render "tops/index"
   end
 end
 

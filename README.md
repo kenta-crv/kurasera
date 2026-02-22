@@ -1,24 +1,12 @@
-# README
+require 'csv'
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+file_path = Rails.root.join('security.csv')
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+CSV.foreach(file_path, headers: true) do |row|
+  Column.create!(
+    parent_id: row['parent_id'].present? ? row['parent_id'].to_i : nil,
+    title: row['title'],
+    genre: row['genre'],
+    article_type: row['article_type']
+  )
+end

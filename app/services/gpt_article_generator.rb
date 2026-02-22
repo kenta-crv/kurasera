@@ -7,6 +7,7 @@ class GptArticleGenerator
   TARGET_CHARS_PER_SECTION = 300
   MAX_CHARS_PER_SECTION = 500
   MODEL_NAME = "gpt-4o-mini"
+  MAX_RETRIES = 3 # 本文が抽出されない場合のリトライ回数
 
   GPT_API_KEY = ENV["GPT_API_KEY"]
   GPT_API_URL = "https://api.openai.com/v1/chat/completions"
@@ -80,13 +81,16 @@ class GptArticleGenerator
     end
 
     # ==============================
-    # STEP 2: 本文生成
+    # STEP 2: 本文生成（リトライ機能付き）
     # ==============================
     full_article = ""
 
-    full_article += generate_section_content(
+    # 全体の構成を把握させるためのテキスト（一貫性用）
+    overall_structure_text = structure.map.with_index(1) { |s, i| "#{i}. #{s['h2_title']}" }.join("\n")
+
+    full_article += generate_section_content_with_retry(
       "導入",
-      introduction_prompt(column, category, user_instruction),
+      introduction_prompt(column, category, user_instruction, overall_structure_text),
       column,
       heading_level: ""
     ) + "\n\n"
@@ -96,21 +100,21 @@ class GptArticleGenerator
 
       if h2["h3_sub_sections"].present?
         h2["h3_sub_sections"].each do |h3|
-          prompt = section_content_prompt(column, h3, "H3", category, user_instruction, parent_h2: h2["h2_title"])
-          full_article += generate_section_content(h3, prompt, column, heading_level: "###") + "\n\n"
+          prompt = section_content_prompt(column, h3, "H3", category, user_instruction, parent_h2: h2["h2_title"], overall_structure: overall_structure_text)
+          full_article += generate_section_content_with_retry(h3, prompt, column, heading_level: "###") + "\n\n"
           sleep(0.5) 
         end
       else
-        prompt = section_content_prompt(column, h2["h2_title"], "H2", category, user_instruction)
-        full_article += generate_section_content(h2["h2_title"], prompt, column, heading_level: "") + "\n\n"
+        prompt = section_content_prompt(column, h2["h2_title"], "H2", category, user_instruction, overall_structure: overall_structure_text)
+        full_article += generate_section_content_with_retry(h2["h2_title"], prompt, column, heading_level: "") + "\n\n"
       end
 
       sleep(0.5) 
     end
 
-    full_article += generate_section_content(
+    full_article += generate_section_content_with_retry(
       "まとめ",
-      simple_conclusion_prompt(column, category, user_instruction),
+      simple_conclusion_prompt(column, category, user_instruction, overall_structure_text),
       column,
       heading_level: ""
     )
@@ -118,6 +122,23 @@ class GptArticleGenerator
     full_article.gsub!(/<(h[23])[^>]*>/i, '<\1>')
     full_article += "\n\n{::options auto_ids=\"false\" /}"
     full_article
+  end
+
+  # --- 新設: 本文が空の場合にリトライするロジック ---
+  def self.generate_section_content_with_retry(name, prompt, column, heading_level: "##")
+    MAX_RETRIES.times do |i|
+      response = call_gpt_api(prompt)
+      content = response&.dig("choices", 0, "message", "content")
+      
+      # 本文が空でなく、かつ見出しのみ（例: 50文字以下）でない場合に採用
+      if content.present? && content.strip.length > 50
+        return content
+      end
+
+      Rails.logger.warn("#{name} の本文が抽出できなかったため、リトライします (#{i+1}/#{MAX_RETRIES})")
+      sleep(1)
+    end
+    "（#{name}の本文生成に失敗しました。再生成してください。）"
   end
 
   def self.generate_meta_info(column, category)
@@ -200,20 +221,24 @@ class GptArticleGenerator
     PROMPT
   end
 
-  def self.introduction_prompt(column, category, user_instruction)
+  def self.introduction_prompt(column, category, user_instruction, overall_structure)
     service = service_profile(category)
     instruction = user_instruction.present? ? "### 個別指示（反映必須）\n#{user_instruction}\n" : ""
     <<~PROMPT
       タイトル「#{column.title}」の導入文を書いてください。
-      - 役割：読者の悩み（費用負担等）への共感と、記事を読むメリット。
-      - 注意：具体的な結論（400本基準等）は後の見出しで詳述するため、ここでは書かず重複を避けてください。
+      
+      # 記事全体の構成案
+      #{overall_structure}
+
+      - 役割：読者の悩みへの共感と、記事を読むメリット。
+      - 注意：具体的な結論（数値等）は後の見出しで詳述するため、ここでは期待感を高める内容に留め、重複を避けてください。
       #{instruction}
       - 文字数：必ず#{TARGET_CHARS_PER_SECTION}文字以上を維持してください。
       - 見出しは含めず本文のみ出力してください。
     PROMPT
   end
 
-  def self.section_content_prompt(column, headline, level, category, user_instruction, parent_h2: nil)
+  def self.section_content_prompt(column, headline, level, category, user_instruction, parent_h2: nil, overall_structure: nil)
     parent = parent_h2 ? "（親テーマ: #{parent_h2}）" : ""
     service = service_profile(category)
     instruction = user_instruction.present? ? "### 個別指示（最優先事項）\n#{user_instruction}\n" : ""
@@ -222,6 +247,9 @@ class GptArticleGenerator
     <<~PROMPT
       以下のセクションを執筆してください。見出しだけ出力して本文を省略することは「絶対に禁止」です。
 
+      # 全体の構成案
+      #{overall_structure}
+
       - 見出し: #{headline} #{parent}
       - タイトル: #{column.title}
       - 専門背景: #{service}
@@ -229,32 +257,28 @@ class GptArticleGenerator
 
       # 執筆の絶対ルール
       1. **本文執筆の義務**: 必ず300文字〜500文字の本文を生成してください。
-      2. **重複の徹底排除**: 他の見出しで書いた内容（例：400本基準の繰り返し）を避け、この見出し独自の専門知識を深掘りしてください。
-      3. **具体性**: 読者が実行できる具体的なアクション、実務上の注意点、法的根拠、または独自のノウハウを必ず盛り込んでください。
+      2. **重複の徹底排除**: 他の見出しで書く予定の内容を避け、この見出し独自の専門知識を深掘りしてください。
+      3. **一貫性**: 記事全体の構成に沿った論理的な文章にしてください。
       
       #{heading_instr}
     PROMPT
   end
 
-  # --- 修正箇所: まとめプロンプトの改善 ---
-  def self.simple_conclusion_prompt(column, category, user_instruction)
+  def self.simple_conclusion_prompt(column, category, user_instruction, overall_structure)
     service = service_profile(category)
     instruction = user_instruction.present? ? "### 個別指示（反映必須）\n#{user_instruction}\n" : ""
     <<~PROMPT
       記事「#{column.title}」の総括（まとめ）を執筆してください。
+      
+      # 記事全体の構成案
+      #{overall_structure}
+
       - 必ず「## まとめ」という見出しから開始してください。
-      - 記事全体（#{category}業界の課題や解決策）を振り返り、読者が抱く不安を解消する内容にしてください。
+      - 記事全体を振り返り、読者の不安を解消する内容にしてください。
       - 最後に、専門サービス「#{service.split("\n").first}」へ相談することを具体的なアクションとして促してください。
       #{instruction}
       - 文字数：必ず300〜500文字を維持してください。
     PROMPT
-  end
-  # ------------------------------------
-
-  def self.generate_section_content(name, prompt, column, heading_level: "##")
-    response = call_gpt_api(prompt)
-    content = response&.dig("choices", 0, "message", "content")
-    content.presence || "（#{name}の本文生成に失敗しました。再生成してください。）"
   end
 
   def self.call_gpt_api(prompt, response_format: nil)
