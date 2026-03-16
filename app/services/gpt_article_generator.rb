@@ -12,13 +12,14 @@ class GptArticleGenerator
   GPT_API_KEY = ENV["GPT_API_KEY"]
   GPT_API_URL = "https://api.openai.com/v1/chat/completions"
 
-  # 英字コードから日本語名を取得するための逆引きマップ
+  # 英字コードから日本語名を取得するための辞書
   GENRE_REVERSE_MAP = {
     "cargo"        => "軽貨物",
     "cleaning"     => "清掃",
     "security"     => "警備",
     "app"          => "営業代行",
     "vender"       => "自販機",
+    "pest"         => "害虫駆除",
     "construction" => "建設"
   }.freeze
 
@@ -29,6 +30,7 @@ class GptArticleGenerator
     "営業代行" => ["営業代行", "テレアポ"],
     "ブログ"   => ["ブログ"],
     "自販機"   => ["自販機"],
+    "害虫駆除" => ["シロアリ駆除", "トコジラミ駆除","ネズミ駆除"],
     "建設"     => ["建設", "現場"]
   }
 
@@ -39,22 +41,42 @@ class GptArticleGenerator
     end
 
     original_body = column.body
-    # genreを最優先し、カテゴリ(日本語)を決定
-    category = GENRE_REVERSE_MAP[column.genre] || detect_category(column.keyword)
+
+    # ==============================
+    # 修正箇所: ジャンル名の正規化（URLエラーの根本治療）
+    # ==============================
+    # 相互変換用マップ
+    en_to_jp = GENRE_REVERSE_MAP
+    jp_to_en = GENRE_REVERSE_MAP.invert
+
+    # 1. 英字コード(genre_code)を特定する
+    # 既存が英字ならそのまま、日本語なら変換、空ならキーワードから推測
+    genre_code = if en_to_jp.key?(column.genre)
+                   column.genre
+                 elsif jp_to_en.key?(column.genre)
+                   jp_to_en[column.genre]
+                 else
+                   jp_to_en[detect_category(column.keyword)]
+                 end
+
+    # 2. プロンプト用の日本語カテゴリ名を特定
+    category = en_to_jp[genre_code] || "その他"
     
     user_instruction = column.respond_to?(:prompt) ? column.prompt : nil
 
-    Rails.logger.info("判定カテゴリ: #{category}")
+    Rails.logger.info("判定カテゴリ: #{category} (コード: #{genre_code})")
 
     # ==============================
-    # STEP 0: meta情報生成
+    # STEP 0: meta情報生成 & DBステータス正常化
     # ==============================
     meta_data = generate_meta_info(column, category)
     if meta_data
       clean_code = meta_data["code"].to_s.downcase.gsub(/[^a-z0-9\s\-]/, '').strip.gsub(/[\s_]+/, '-').gsub(/-+/, '-').gsub(/\A-|-\z/, '')
       clean_code = "article-#{column.id.to_s.split('-').first}" if clean_code.blank?
       
+      # 重要: ここで genre を英字コードで上書き保存することで、URL生成エラーを解消する
       column.update!(
+        genre: genre_code,
         code: clean_code,
         description: meta_data["description"],
         keyword: meta_data["keyword"]
@@ -188,6 +210,11 @@ class GptArticleGenerator
       <<~TEXT
         サービス名: 自動販売機の設置なら『自販機ねっと』
         強み: メーカー自販機一括見積及び自動販売機が設置できない企業・個人向けに誰でも設置できる自動販売機の提供
+      TEXT
+    when "害虫駆除"
+      <<~TEXT
+        サービス名: シロアリ・ネズミ・トコジラミの害虫駆除なら『駆除士隊』
+        強み: シロアリ駆除・ネズミ駆除・トコジラミ駆除にお悩みの方に向けて害虫の駆除を行います。
       TEXT
     when "営業代行"
       <<~TEXT

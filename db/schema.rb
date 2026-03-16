@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_02_04_062107) do
+ActiveRecord::Schema.define(version: 2026_03_08_125305) do
 
   create_table "admins", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -22,6 +22,31 @@ ActiveRecord::Schema.define(version: 2026_02_04_062107) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["email"], name: "index_admins_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
+  end
+
+  create_table "clients", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "company"
+    t.string "name"
+    t.string "tel"
+    t.string "address"
+    t.string "url"
+    t.string "domain", default: "", null: false
+    t.string "api_key", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "subscription_plan", default: "trial"
+    t.string "subscription_status", default: "active"
+    t.datetime "trial_ends_at"
+    t.string "payjp_customer_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["email"], name: "index_clients_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_clients_on_reset_password_token", unique: true
+    t.index ["subscription_plan"], name: "index_clients_on_subscription_plan"
+    t.index ["subscription_status"], name: "index_clients_on_subscription_status"
   end
 
   create_table "columns", force: :cascade do |t|
@@ -72,6 +97,21 @@ ActiveRecord::Schema.define(version: 2026_02_04_062107) do
     t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
   end
 
+  create_table "payments", force: :cascade do |t|
+    t.integer "client_id", null: false
+    t.integer "campaign_id", null: false
+    t.integer "amount", null: false
+    t.string "payjp_charge_id", null: false
+    t.string "status", default: "pending", null: false
+    t.text "description"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["campaign_id"], name: "index_payments_on_campaign_id"
+    t.index ["client_id"], name: "index_payments_on_client_id"
+    t.index ["payjp_charge_id"], name: "index_payments_on_payjp_charge_id"
+    t.index ["status"], name: "index_payments_on_status"
+  end
+
   create_table "sites", force: :cascade do |t|
     t.string "name", null: false
     t.string "domain", null: false
@@ -83,4 +123,21 @@ ActiveRecord::Schema.define(version: 2026_02_04_062107) do
     t.index ["domain"], name: "index_sites_on_domain", unique: true
   end
 
+  create_table "subscriptions", force: :cascade do |t|
+    t.integer "client_id", null: false
+    t.string "plan_type", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "trial_ends_at"
+    t.string "payjp_subscription_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["client_id"], name: "index_subscriptions_on_client_id"
+    t.index ["payjp_subscription_id"], name: "index_subscriptions_on_payjp_subscription_id"
+    t.index ["plan_type"], name: "index_subscriptions_on_plan_type"
+    t.index ["status"], name: "index_subscriptions_on_status"
+  end
+
+  add_foreign_key "payments", "campaigns"
+  add_foreign_key "payments", "clients"
+  add_foreign_key "subscriptions", "clients"
 end

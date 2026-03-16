@@ -1,7 +1,7 @@
 class GenerateChildColumnsJob < ApplicationJob
   queue_as :default
 
-  def perform(pillar_id, batch_count = 50)
+  def perform(pillar_id, batch_count = 25)
 
     pillar = Column.find_by(id: pillar_id)
     return unless pillar

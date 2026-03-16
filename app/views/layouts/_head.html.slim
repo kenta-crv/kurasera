@@ -18,3 +18,31 @@ script
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-KKJH6MHMBK');
+
+/ --- application.html.slim などの head 内、または View の上部に配置 ---
+script src="https://js.pay.jp/v2/pay.js"
+
+script
+  | (function() {
+      // ページ読み込み時とTurbo遷移時の両方に対応
+      const initPayjp = function() {
+        if (typeof Payjp === 'undefined') {
+          console.error('Pay.jp SDK failed to load');
+          return;
+        }
+        
+        // すでにインスタンスがある場合は再作成しない
+        if (!window.payjpInstance) {
+          window.payjpInstance = Payjp('#{@payjp_public_key || Rails.application.credentials.dig(:payjp, :public_key) || ENV["PAYJP_PUBLIC_KEY"]}');
+          console.log('Payjp initialized');
+        }
+      };
+
+      document.addEventListener('turbo:load', initPayjp);
+      // 初回読み込み対策
+      if (document.readyState !== 'loading') {
+        initPayjp();
+      } else {
+        document.addEventListener('DOMContentLoaded', initPayjp);
+      }
+    })();

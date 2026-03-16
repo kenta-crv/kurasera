@@ -4,6 +4,24 @@ Rails.application.routes.draw do
     sessions: 'admins/sessions',
     registrations: 'admins/registrations'
   }
+
+    # Devise routes for Users
+  devise_for :clients, controllers: {
+    sessions: "clients/sessions",
+    registrations: "clients/registrations",
+    passwords: "clients/passwords"
+  }
+
+  resources :clients do
+    # Campaigns nested under clients
+    #resources :campaigns do
+    #  get :confirm_payment, on: :member, as: :confirm_payment
+    #end
+#
+    # Push subscriptions
+    resources :push_subscriptions, only: [:index, :create]
+  end
+
   
   root to: 'tops#index'
 
@@ -20,9 +38,10 @@ Rails.application.routes.draw do
   get 'app', to: 'tops#app'
   get 'ads', to: 'tops#ads'
   get 'bpo', to: 'tops#bpo'
+  get 'pest', to: 'tops#pest'
 
   # --- SEO用: ジャンル別コラム階層 (/genre/columns/:code) ---
-  scope ':genre', constraints: { genre: /cargo|security|cleaning|app|construction|vender/ } do
+  scope ':genre', constraints: { genre: /cargo|security|cleaning|construction|pest/ } do
     resources :columns, only: [:index, :show], as: :nested_columns
   end
 
@@ -56,4 +75,17 @@ Rails.application.routes.draw do
   authenticate :admin do 
     mount Sidekiq::Web, at: "/sidekiq"
   end
+
+  #Payment
+  get 'checkout/confirmation', to: 'checkout#confirmation', as: :checkout_confirmation
+  post 'checkout/create', to: 'checkout#create', as: :checkout_create
+  get 'checkout/success', to: 'checkout#success', as: :checkout_success
+  get 'checkout/cancel', to: 'checkout#cancel', as: :checkout_cancel
+
+  get 'plans', to: 'plans#index', as: :plans
+  post 'plans/select', to: 'plans#select', as: :select_plan
+
+  get 'client/subscription', to: 'client/subscriptions#show', as: :client_subscription
+  patch 'client/subscription', to: 'client/subscriptions#update'
+  post 'client/subscription/cancel', to: 'client/subscriptions#cancel', as: :cancel_client_subscription
 end

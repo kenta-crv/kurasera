@@ -3,8 +3,10 @@ class GeminiColumnGenerator
   require "json"
   require "openssl"
 
-  GEMINI_API_KEY = ENV["GEMINI_API_KEY"]
-  GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+  # GPT設定
+  GPT_API_KEY = ENV["GPT_API_KEY"]
+  GPT_API_URL = "https://api.openai.com/v1/chat/completions"
+  MODEL_NAME = "gpt-4o-mini"
   MAX_RETRIES = 3
 
   GENRE_CONFIG = {
@@ -62,6 +64,15 @@ class GeminiColumnGenerator
       exclude: "メーカー設置が前提で、仕組みや責任範囲を理解しようとしない浅い内容",
       hints: "契約形態, 電気代負担, 商品補充の仕組み, 管理責任の分界点, 社内説明, 撤去・入替の考え方"
     },
+    pest: {
+      service_name:  "シロアリ・ネズミ・トコジラミの害虫駆除なら『駆除士隊』",
+      service_brand: "駆除士隊",
+      service_path:  "/pest",
+      target: "シロアリ・ネズミ・トコジラミの害虫駆除をしたい個人",
+      categories: ["トコジラミ駆除", "ネズミ駆除", "シロアリ駆除", "害虫駆除"],
+      exclude: "個人の害虫駆除に困っている人に向けた記事",
+      hints: "害虫の駆除方法, 業者に委託を促す内容, 害虫を発生させないようにする対策"
+    },
     construction: {
       service_name:  "建設現場労務支援サービス",
       service_brand: "OK建設",
@@ -92,7 +103,7 @@ class GeminiColumnGenerator
         target_category = GENRE_CONFIG[g][:categories].sample
         success_count += 1 if execute_generation(g, target_category, pillar_id: target_pillar&.id)
         processed += 1
-        sleep 2
+        sleep 1 # GPTは比較的速いのでsleepを少し短縮
       end
       genre_list.shuffle! unless target_pillar
     end
@@ -112,7 +123,6 @@ class GeminiColumnGenerator
     actual_genre = pillar.genre.to_sym
     config = GENRE_CONFIG[actual_genre]
 
-    # 【改善点】既存の子記事タイトルを取得して、AIに「これ以外を作れ」と命じる
     existing_titles = Column.where(parent_id: pillar.id).pluck(:title).join("\n- ")
 
     prompt = <<~PROMPT
@@ -153,7 +163,8 @@ class GeminiColumnGenerator
 
     retries = 0
     loop do
-      response_text = post_to_gemini(prompt)
+      # メソッド名を統一性のためそのまま使用（中身はGPTに修正）
+      response_text = post_to_gpt(prompt)
       return false if response_text.nil?
 
       json_match = response_text.match(/(\{.*\}|\[.*\])/m)
@@ -199,19 +210,37 @@ class GeminiColumnGenerator
     false
   end
 
-  def self.post_to_gemini(prompt)
-    uri = URI(GEMINI_API_URL)
-    uri.query = URI.encode_www_form(key: GEMINI_API_KEY)
-    req = Net::HTTP::Post.new(uri, "Content-Type" => "application/json")
-    req.body = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { response_mime_type: "application/json" }
-    }.to_json
+  # 旧 post_to_gemini を OpenAI 向けに全面修正
+  def self.post_to_gpt(prompt)
+    uri = URI(GPT_API_URL)
+    
+    req = Net::HTTP::Post.new(uri, {
+      "Content-Type"  => "application/json",
+      "Authorization" => "Bearer #{GPT_API_KEY}"
+    })
+    
+    # OpenAIの形式に合わせてペイロードを作成
+    payload = {
+      model: MODEL_NAME,
+      messages: [
+        { role: "system", content: "あなたは優秀なSEOライターです。指定されたJSON形式で回答してください。" },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" }, # JSONモードを強制
+      temperature: 0.7
+    }
+    
+    req.body = JSON.generate(payload)
 
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
-    return nil unless res.is_a?(Net::HTTPSuccess)
+
+    unless res.is_a?(Net::HTTPSuccess)
+      Rails.logger.error "GPT API Error: #{res.code} - #{res.body}"
+      return nil
+    end
     
     body = JSON.parse(res.body)
-    body.dig("candidates", 0, "content", "parts", 0, "text")
+    # OpenAIのレスポンス構造からテキストを抽出
+    body.dig("choices", 0, "message", "content")
   end
 end

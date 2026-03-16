@@ -7,80 +7,108 @@ class ColumnsController < ApplicationController
 def index
   # statusがdraft以外、かつ bodyが空でないものだけを取得
   columns = Column.where.not(status: "draft").where.not(body: [nil, ""])
-  
+
+  # -----------------------------
+  # ドメインによるgenre制御
+  # -----------------------------
+  if request.host.include?("ri-plus.jp")
+    columns = columns.where(genre: "app")
+  elsif request.host.include?("自販機.net")
+    columns = columns.where(genre: "vender")
+  end
+
+  # status検索
   columns = columns.where(status: params[:status]) if params[:status].present?
 
-  # ① 親/子のフィルタリングボタン用
+  # 親/子フィルタ
   if params[:article_type].present?
     columns = columns.where(article_type: params[:article_type])
   end
 
-  # ジャンル検索
+  # ジャンル検索（URLパラメータがある場合）
   if params[:genre].present?
     allowed_genres = Column::GENRE_MAPPING[params[:genre]] || [params[:genre]]
     columns = columns.where(genre: allowed_genres)
   end
 
   @columns = columns.order(updated_at: :desc)
-  
+
   column_ids = @columns.map(&:id)
 
-  # --- 修正箇所：bodyが空でない子記事のみをカウント ---
+  # --- bodyが空でない子記事のみをカウント ---
   @child_counts = if column_ids.any?
     Column.where(parent_id: column_ids)
-          .where.not(body: [nil, ""]) # bodyがnilまたは空文字でない
+          .where.not(body: [nil, ""])
           .group(:parent_id)
           .count
   else
     {}
   end
 end
-# app/controllers/columns_controller.rb
 
 def show
-    # set_column で既に @column は取得済みのため、find_by は不要です。
+  # --- SEO対策: 正規URL生成 ---
+  correct_path = nil
 
-    # --- SEO対策: 正規URLへのリダイレクト ---
-    is_valid_genre = @column.genre.present? && @column.genre.match?(/cargo|security|cleaning|app|construction/)
-    
+  if request.host.include?("ri-plus.jp")
+    # app専用ドメイン
+    correct_path = column_path(@column)
+
+  elsif request.host.include?("自販機.net")
+    # vender専用ドメイン
+    correct_path = column_path(@column)
+
+  else
+    # 通常ドメイン（ジャンルURL）
+    is_valid_genre = @column.genre.present? && @column.genre.match?(/cargo|security|cleaning|construction|pest/)
+
     correct_path = if is_valid_genre
                      nested_column_path(genre: @column.genre, id: @column.code)
                    else
                      column_path(@column)
                    end
-
-    if request.path != correct_path
-      return redirect_to correct_path, status: :moved_permanently
-    end
-
-    # --- 親記事（pillar）の場合は子記事を取得 ---
-    if @column.article_type == "pillar"
-      # 修正箇所：statusがdraft以外、かつ bodyが空でないものに絞り込み
-      @children = @column.children
-                         .where.not(status: "draft")
-                         .where.not(body: [nil, ""]) # bodyがあるものだけ
-                         .order(updated_at: :desc)
-    else
-      @children = []
-    end
-
-    # --- Markdown 処理 ---
-    markdown_body = @column.body.presence || "## 記事はまだ生成されていません。"
-    raw_html_body = Kramdown::Document.new(markdown_body).to_html
-
-    sanitized_html_body = raw_html_body
-      .gsub(/<span[^>]*>|<\/span>/, '')
-      .gsub(/ style=\"[^\"]*\"/, '')
-
-    @headings = []
-    @column_body_with_ids = sanitized_html_body.gsub(/<(h[2-4])>(.*?)<\/\1>/m) do
-      tag  = Regexp.last_match(1)
-      text = Regexp.last_match(2)
-      idx = @headings.size
-      @headings << { tag: tag, text: text, id: "heading-#{idx}", level: tag[1].to_i }
-      "<#{tag} id='heading-#{idx}'>#{text}</#{tag}>"
-    end
   end
+
+  # --- 正規URLへ301リダイレクト ---
+  if request.path != correct_path
+    return redirect_to correct_path, status: :moved_permanently
+  end
+
+  # --- 親記事（pillar）の場合は子記事を取得 ---
+  if @column.article_type == "pillar"
+    @children = @column.children
+                       .where.not(status: "draft")
+                       .where.not(body: [nil, ""])
+                       .order(updated_at: :desc)
+  else
+    @children = []
+  end
+
+  # --- Markdown 処理 ---
+  markdown_body = @column.body.presence || "## 記事はまだ生成されていません。"
+  raw_html_body = Kramdown::Document.new(markdown_body).to_html
+
+  sanitized_html_body = raw_html_body
+    .gsub(/<span[^>]*>|<\/span>/, '')
+    .gsub(/ style=\"[^\"]*\"/, '')
+
+  @headings = []
+
+  @column_body_with_ids = sanitized_html_body.gsub(/<(h[2-4])>(.*?)<\/\1>/m) do
+    tag  = Regexp.last_match(1)
+    text = Regexp.last_match(2)
+    idx  = @headings.size
+
+    @headings << {
+      tag: tag,
+      text: text,
+      id: "heading-#{idx}",
+      level: tag[1].to_i
+    }
+
+    "<#{tag} id='heading-#{idx}'>#{text}</#{tag}>"
+  end
+end
     
   def new
     @column = Column.new

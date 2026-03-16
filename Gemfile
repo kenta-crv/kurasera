@@ -90,3 +90,8 @@ gem 'sitemap_generator'
 gem 'breadcrumbs_on_rails'
 gem 'friendly_id', '~> 5.5'
 gem 'carrierwave'
+
+gem 'date', '< 3.5'
+gem 'timeout', '< 0.6'
+
+gem "payjp"

@@ -1,5 +1,7 @@
 class ApplicationController < ActionController::Base
   include MetaTags::ControllerHelper
+  before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :check_trial_expiration
 
   before_action :init_breadcrumbs
   helper_method :breadcrumbs
@@ -12,7 +14,37 @@ class ApplicationController < ActionController::Base
     @breadcrumbs << { label: label, path: path }
   end
 
+  protected
+def after_sign_in_path_for(resource)
+  if resource.is_a?(Admin)
+    # Admin用のダッシュボードがないようなので、一旦 root か columns 一覧へ
+    return root_path
+  end
+
+  if resource.is_a?(Client)
+    # routesにある「clients GET /clients(.:format)」を参照
+    return clients_path
+  end
+
+  super
+end
+
+  def configure_permitted_parameters
+    added_attrs = [:first_name, :last_name, :email, :password, :password_confirmation, :remember_me]
+    devise_parameter_sanitizer.permit(:sign_up, keys: added_attrs)
+    devise_parameter_sanitizer.permit(:account_update, keys: added_attrs)
+  end
+
+  def check_trial_expiration
+    return unless current_client.present?
+    current_client.check_and_upgrade_expired_trial
+  end
+
   private
+
+  def admin_root_path
+    admin_dashboard_index_path
+  end
 
   def init_breadcrumbs
     @breadcrumbs = []
