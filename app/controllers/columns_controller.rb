@@ -10,7 +10,7 @@ class ColumnsController < ApplicationController
     # 2. ドメインとURLパラメータに基づく出し分け
     case request.host
     when "j-work.jp"
-      allowed = ["cargo", "cleaning", "logistics", "event"]
+      allowed = ["cargo", "cleaning", "logistics", "event", "housekeeping", "babysitter"]
       if params[:genre].present?
         return render_404 unless allowed.include?(params[:genre])
         columns = columns.where(genre: params[:genre])
@@ -45,7 +45,7 @@ class ColumnsController < ApplicationController
     # ドメインごとの正規URL判定
     case request.host
     when "j-work.jp"
-      allowed = ["cargo", "cleaning", "logistics", "event"]
+      allowed = ["cargo", "cleaning", "logistics", "event", "housekeeping", "babysitter"]
       return render_404 unless allowed.include?(@column.genre)
       correct_path = j_work_nested_path(genre: @column.genre, id: @column.code)
     when "ri-plus.jp"

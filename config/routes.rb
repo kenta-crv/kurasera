@@ -87,12 +87,13 @@ Rails.application.routes.draw do
     # 許可された 4ジャンル の LP
     get 'cleaning',  to: 'tops#cleaning'
     get 'daily',  to: 'tops#daily'
+    get 'housekeeping',  to: 'tops#housekeeping'
     get 'cargo',     to: 'tops#cargo'
     get 'logistics', to: 'tops#logistics'
     get 'event',     to: 'tops#event'
 
     # 構造: /:genre/columns (j-workでは cargo|cleaning|logistics|event に制限)
-    scope ':genre/columns', constraints: { genre: /cargo|cleaning|logistics|event/ } do
+    scope ':genre/columns', constraints: { genre: /cargo|cleaning|logistics|event|housekeeping|babysitter/ } do
       get '/',    to: 'columns#index'
       get '/:id', to: 'columns#show'
     end

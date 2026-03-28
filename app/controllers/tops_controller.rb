@@ -11,6 +11,7 @@ class TopsController < ApplicationController
   def construction; end
   def cleaning; end
   def daily; end
+  def housekeeping; end
   def event; end
   def logistics; end
   def app; end

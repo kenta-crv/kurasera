@@ -47,7 +47,9 @@ class Column < ApplicationRecord
     "app"          => ["app"],
     "vender"          => ["vender"],
     "ai"           => ["ai"],
-    "construction" => ["construction"]
+    "construction" => ["construction"],
+    "housekeeping" => ["housekeeping"],
+    "babysitter" => ["babysitter"],
   }.freeze
 
   CATEGORY_IMAGES = {

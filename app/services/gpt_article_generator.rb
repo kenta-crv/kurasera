@@ -21,6 +21,8 @@ class GptArticleGenerator
     "vender"       => "自販機",
     "pest"         => "害虫駆除",
     "construction" => "建設"
+    "housekeeping" => "家事代行"
+    "babysitter" => "ベビーシッター"
   }.freeze
 
   CATEGORY_KEYWORDS = {
@@ -31,7 +33,9 @@ class GptArticleGenerator
     "ブログ"   => ["ブログ"],
     "自販機"   => ["自販機"],
     "害虫駆除" => ["シロアリ駆除", "トコジラミ駆除","ネズミ駆除"],
-    "建設"     => ["建設", "現場"]
+    "建設"     => ["建設", "現場"].
+    "家事代行" => ["家事代行","お手伝いさん","ハウスキーパー"],
+    "ベビーシッター" => ["ベビーシッター"]
   }
 
   def self.generate_body(column)
@@ -220,6 +224,14 @@ class GptArticleGenerator
       <<~TEXT
         サービス名: セールスパートナー
         強み: ターゲット選定からテレアポ、商談設定まで一気通貫。高い成約率を誇るノウハウ。
+      TEXT
+    when "家事代行"
+      <<~TEXT
+        強み: 主婦や家事・清掃経験者集団がご家庭の家事を代行して、清掃美化や家主様のトータルサポートを行います。
+      TEXT
+    when "ベビーシッター"
+      <<~TEXT
+        強み: 
       TEXT
     else
       "各業界の専門知識に基づいた最適なソリューションを提供。"
