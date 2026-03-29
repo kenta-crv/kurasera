@@ -81,9 +81,6 @@ gem 'sidekiq'
 # Sidekiqで定期実行を実現するライブラリ
 gem 'sidekiq-cron' 
 
-# MarkdownをHTMLに変換するためのライブラリ (ColumnsControllerで使用)
-gem 'kramdown'
-
 gem 'openai'
 
 gem 'sitemap_generator'
@@ -93,3 +90,5 @@ gem 'carrierwave'
 
 gem 'date', '< 3.5'
 gem 'timeout', '< 0.6'
+
+gem "payjp"
