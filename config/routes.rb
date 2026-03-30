@@ -56,7 +56,7 @@ Rails.application.routes.draw do
   # 3. マスタードメイン (okey.work)
   # ================================================================
   constraints(lambda { |req| req.host == 'okey.work' }) do
-    root to: 'columns#index', as: :master_root
+    root to: 'tops#index', as: :master_root
 
     get 'construction', to: 'tops#construction'
     get 'security',     to: 'tops#security'
