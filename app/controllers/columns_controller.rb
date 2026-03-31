@@ -3,7 +3,7 @@ class ColumnsController < ApplicationController
   before_action :set_breadcrumbs
   before_action :set_noindex
 
-def index
+  def index
     # 1. 公開済みデータのベース
     columns = Column.where.not(status: "draft").where.not(body: [nil, ""])
 
@@ -24,15 +24,12 @@ def index
     when "okey.work"
       columns = columns.where(genre: params[:genre]) if params[:genre].present?
     else
-      # 開発環境等
       columns = columns.where(genre: params[:genre]) if params[:genre].present?
     end
 
-    # 3. 共通の絞り込み (パラメータがある場合のみ chain する)
+    # 3. 共通の絞り込み
     columns = columns.where(status: params[:status]) if params[:status].present?
     columns = columns.where(article_type: params[:article_type]) if params[:article_type].present?
-    
-    # 最終的な結果を @columns に代入
     @columns = columns.order(updated_at: :desc)
     
     # 子記事カウント
@@ -48,17 +45,18 @@ def index
     when "j-work.jp"
       allowed = ["cargo", "cleaning", "logistics", "event", "housekeeping", "babysitter"]
       return render_404 unless allowed.include?(@column.genre)
-      correct_path = j_work_nested_path(genre: @column.genre, id: @column.code)
+      # routes.rb の columns_show を使用
+      correct_path = columns_show_path(genre: @column.genre, id: @column.code)
     when "ri-plus.jp"
       return render_404 unless @column.genre == "app"
-      correct_path = ri_plus_nested_path(genre: @column.genre, id: @column.code)
+      correct_path = nested_column_path(genre: @column.genre, id: @column.code)
     when "自販機.net"
       return render_404 unless @column.genre == "vender"
-      correct_path = vender_nested_path(genre: @column.genre, id: @column.code)
+      correct_path = nested_column_path(genre: @column.genre, id: @column.code)
     when "okey.work"
-      # マスター側で /:genre/columns/:id 形式でアクセスされた場合
+      # --- ここを修正: master_nested_path ではなく nested_column_path を使う ---
       if params[:genre].present?
-        correct_path = master_nested_path(genre: @column.genre, id: @column.code)
+        correct_path = nested_column_path(genre: @column.genre, id: @column.code)
       else
         correct_path = column_path(@column)
       end
@@ -78,7 +76,7 @@ def index
       @children = []
     end
 
-    # Markdownパース処理
+    # Markdownパース
     markdown_body = @column.body.presence || "## 記事はまだ生成されていません。"
     raw_html_body = Kramdown::Document.new(markdown_body).to_html
     sanitized_html_body = raw_html_body.gsub(/<span[^>]*>|<\/span>/, '').gsub(/ style=\"[^\"]*\"/, '')
@@ -92,32 +90,17 @@ def index
     end
   end
 
-  # --- 管理アクション (okey.workで主に使用) ---
+  # --- 管理用 ---
   def new; @column = Column.new; end
-
   def create
     @column = Column.new(column_params)
-    if @column.save
-      redirect_to columns_path, notice: "作成しました"
-    else
-      render 'new'
-    end
+    if @column.save; redirect_to columns_path, notice: "作成しました"; else; render 'new'; end
   end
-
   def edit; add_breadcrumb "記事編集", edit_column_path(@column); end
-
   def update
-    if @column.update(column_params)
-      redirect_to columns_path, notice: "更新しました"
-    else
-      render 'edit'
-    end
+    if @column.update(column_params); redirect_to columns_path, notice: "更新しました"; else; render 'edit'; end
   end
-
-  def destroy
-    @column.destroy
-    redirect_to columns_path, notice: "削除しました"
-  end
+  def destroy; @column.destroy; redirect_to columns_path, notice: "削除しました"; end
 
   def generate_gemini
     batch = params[:batch] || 20
@@ -179,7 +162,7 @@ def index
   def render_404; render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false; end
 
   def set_breadcrumbs
-    add_breadcrumb 'トップ'#, current_root_path
+    add_breadcrumb 'トップ'
     genre_key = @column&.genre.present? ? @column.genre : params[:genre]
     if defined?(LpDefinition)
       label = LpDefinition.label(genre_key)
