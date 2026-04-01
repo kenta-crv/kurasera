@@ -39,15 +39,15 @@ Rails.application.routes.draw do
   # ================================================================
   
   # トップページ
-  root to: 'tops#index'
+  root to: 'pages#index'
 
   # 各ページ
-  get 'cleaning',      to: 'tops#cleaning'
-  get 'daily',         to: 'tops#daily'
-  get 'housekeeping',  to: 'tops#housekeeping'
-  get 'cargo',         to: 'tops#cargo'
-  get 'logistics',     to: 'tops#logistics'
-  get 'event',         to: 'tops#event'
+  get 'cleaning',      to: 'pages#cleaning'
+  get 'daily',         to: 'pages#daily'
+  get 'housekeeping',  to: 'pages#housekeeping'
+  get 'cargo',         to: 'pages#cargo'
+  get 'logistics',     to: 'pages#logistics'
+  get 'event',         to: 'pages#event'
 
   # columns ページ
   scope ':genre/columns', constraints: { genre: /cargo|cleaning|logistics|event|housekeeping|babysitter/ } do
@@ -63,23 +63,23 @@ Rails.application.routes.draw do
   # ================================================================
   
   # マスタードメイン (okey.work)
-  get 'construction', to: 'tops#construction'
-  get 'security',     to: 'tops#security'
-  get 'short',        to: 'tops#short'
-  get 'vender',       to: 'tops#vender'
-  get 'recruit',      to: 'tops#recruit'
-  get 'bpo',          to: 'tops#bpo'
-  get 'pest',         to: 'tops#pest'
-  get 'ads',          to: 'tops#ads'
+  get 'construction', to: 'pages#construction'
+  get 'security',     to: 'pages#security'
+  get 'short',        to: 'pages#short'
+  get 'vender',       to: 'pages#vender'
+  get 'recruit',      to: 'pages#recruit'
+  get 'bpo',          to: 'pages#bpo'
+  get 'pest',         to: 'pages#pest'
+  get 'ads',          to: 'pages#ads'
 
   get ':genre/columns',     to: 'columns#index', as: :nested_columns
   get ':genre/columns/:id', to: 'columns#show',  as: :nested_column
 
   # ri-plus.jp 用ページ
-  get 'app', to: 'tops#app', as: :app_root
+  get 'app', to: 'pages#app', as: :app_root
 
   # 自販機.net 用ページ
-  get 'vender', to: 'tops#vender', as: :vender_root
+  get 'vender', to: 'pages#vender', as: :vender_root
 
   # ================================================================
   # 4. 共通の付随機能
