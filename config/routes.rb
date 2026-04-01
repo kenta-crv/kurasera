@@ -42,12 +42,12 @@ Rails.application.routes.draw do
   root to: 'pages#index'
 
   # 各ページ
-  get 'cleaning',      to: 'pages#cleaning'
-  get 'daily',         to: 'pages#daily'
-  get 'housekeeping',  to: 'pages#housekeeping'
-  get 'cargo',         to: 'pages#cargo'
-  get 'logistics',     to: 'pages#logistics'
-  get 'event',         to: 'pages#event'
+  get 'pages/cleaning',      to: 'pages#cleaning'
+  get 'pages/daily',         to: 'pages#daily'
+  get 'pages/housekeeping',  to: 'pages#housekeeping'
+  get 'pages/cargo',         to: 'pages#cargo'
+  get 'pages/logistics',     to: 'pages#logistics'
+  get 'pages/event',         to: 'pages#event'
 
   # columns ページ
   scope ':genre/columns', constraints: { genre: /cargo|cleaning|logistics|event|housekeeping|babysitter/ } do
