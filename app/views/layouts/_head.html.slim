@@ -20,6 +20,23 @@ script
     gtag('config', 'AW-10998015402');
     gtag('config', 'G-KKJH6MHMBK');
 
+/ headタグ内のGoogleタグ（gtag.js）の直後に配置
+script
+  | function gtag_report_conversion(url) {
+  |   var callback = function () {
+  |     if (typeof(url) != 'undefined') {
+  |       window.location = url;
+  |     }
+  |   };
+  |   gtag('event', 'conversion', {
+  |       'send_to': 'AW-10998015402/gkRoCOiiwZAcEKrLofwo',
+  |       'value': 1.0,
+  |       'currency': 'JPY',
+  |       'event_callback': callback
+  |   });
+  |   return false;
+  | }
+
 / --- application.html.slim などの head 内、または View の上部に配置 ---
 script src="https://js.pay.jp/v2/pay.js"
 

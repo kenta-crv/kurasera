@@ -73,7 +73,7 @@
                         | 任意
                     = f.text_area :message, class: "form-control hero-main-input", placeholder:"（例）お問い合わせ内容"
                   .col-12
-                    = f.submit "まずは無料で見積から", class: "btn hero-main-submit w-100"
+                    = f.submit "まずは無料で見積から", class: "btn hero-main-submit w-100", onclick: "return gtag_report_conversion();"
       .hero-main-overlay
     /section.brand-marquee-section.py-4
       .brand-marquee
