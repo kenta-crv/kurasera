@@ -42,9 +42,11 @@ Rails.application.routes.draw do
   root to: 'pages#index'
 
   # 各ページ
+  get 'pages/resources',      to: 'pages#resources'
   get 'pages/cleaning',      to: 'pages#cleaning'
   get 'pages/daily',         to: 'pages#daily'
   get 'pages/housekeeping',  to: 'pages#housekeeping'
+  get 'pages/babysitter',    to: 'pages#babysitter'
   get 'pages/cargo',         to: 'pages#cargo'
   get 'pages/logistics',     to: 'pages#logistics'
   get 'pages/event',         to: 'pages#event'
