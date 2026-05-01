@@ -82,22 +82,6 @@ def index
       "<#{tag} id='heading-#{idx}'>#{text}</#{tag}>"
     end
   end
-    # 3. 表示用データ
-    @children = @column.article_type == "pillar" ? @column.children.where.not(status: "draft").where.not(body: [nil, ""]).order(updated_at: :desc) : []
-
-    markdown_body = @column.body.presence || "## 記事はまだ生成されていません。"
-    raw_html_body = Kramdown::Document.new(markdown_body).to_html
-    sanitized_html_body = raw_html_body.gsub(/<span[^>]*>|<\/span>/, '').gsub(/ style=\"[^\"]*\"/, '')
-
-    @headings = []
-    @column_body_with_ids = sanitized_html_body.gsub(/<(h[2-4])>(.*?)<\/\1>/m) do
-      tag, text = Regexp.last_match(1), Regexp.last_match(2)
-      idx = @headings.size
-      @headings << { tag: tag, text: text, id: "heading-#{idx}", level: tag[1].to_i }
-      "<#{tag} id='heading-#{idx}'>#{text}</#{tag}>"
-    end
-  end
-
 
   # --- 管理用 ---
   def new; @column = Column.new; end
