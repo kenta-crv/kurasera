@@ -4,99 +4,95 @@ class ColumnsController < ApplicationController
   before_action :set_noindex
 
 def index
-    # 1. ドメインごとに「そのサイトが表示して良いジャンル」を厳格に定義
-    # ここに含まれないジャンルは、たとえデータベースにあってもそのドメインでは表示させない
-    @allowed_genres = case request.host
-                     when "ri-plus.jp"
-                       ["app"]
-                     when "自販機.net"
-                       ["vender"]
-                     when "j-work.jp"
-                       ["cargo", "cleaning", "logistics", "event", "housekeeping", "babysitter"]
-                     when "okey.work"
-                       ["cleaning"]
-                     when "column.okey.work"
-                       nil # 全解放
-                     else
-                       nil
-                     end
+    # 1. 各ドメインが「どのジャンルを表示して良いか」を完全に定義
+    # ここに記載がないものは、そのドメインでは絶対に表示されない
+    config = case request.host
+             when /ri-plus\.jp/
+               { allowed: ["app"], default: "app" }
+             when /自販機\.net/
+               { allowed: ["vender"], default: "vender" }
+             when /j-work\.jp/
+               # j-workは複数ジャンルを許可
+               { allowed: ["cargo", "cleaning", "logistics", "event", "housekeeping", "babysitter"], default: nil }
+             when /^okey\.work$/
+               { allowed: ["cleaning"], default: "cleaning" }
+             when /column\.okey\.work/
+               { allowed: nil, default: nil } # 全解放
+             else
+               { allowed: nil, default: nil }
+             end
 
-    # 2. 公開済みデータのベース
+    @allowed_genres = config[:allowed]
+    
+    # 2. ベースクエリ（公開済みのみ）
     columns = Column.where.not(status: "draft").where.not(body: [nil, ""])
 
-    # 3. ジャンル絞り込みの徹底
+    # 3. ジャンルフィルタリング
     if @allowed_genres.present?
-      # URLパラメータでジャンル指定がある場合、それが許可リスト内かチェック
+      # 現在のドメインで許可されていないジャンルをDBから除外
+      columns = columns.where(genre: @allowed_genres)
+
       if params[:genre].present?
+        # パラメータがある場合、それが許可リストに含まれているかチェック
         if @allowed_genres.include?(params[:genre])
           columns = columns.where(genre: params[:genre])
         else
-          # 許可されていないジャンルを叩かれたら404
           return render_404
         end
-      else
-        # パラメータがない場合（/columns 直接など）、そのドメインの許可ジャンルのみに限定
-        columns = columns.where(genre: @allowed_genres)
+      elsif config[:default].present?
+        # パラメータがなく、デフォルト設定があるドメイン（ri-plusなど）の場合
+        columns = columns.where(genre: config[:default])
       end
-    else
-      # 制限がないドメイン（column.okey.work等）でパラメータがある場合
-      columns = columns.where(genre: params[:genre]) if params[:genre].present?
+    elsif params[:genre].present?
+      # ハブサイト（制限なし）でパラメータがある場合
+      columns = columns.where(genre: params[:genre])
     end
 
-    # 4. 共通の絞り込み
+    # 4. 共通フィルタ
     columns = columns.where(status: params[:status]) if params[:status].present?
     columns = columns.where(article_type: params[:article_type]) if params[:article_type].present?
+    
     @columns = columns.order(updated_at: :desc)
     
     # 子記事カウント
-    column_ids = @columns.map(&:id)
+    column_ids = @columns.pluck(:id)
     @child_counts = column_ids.any? ? Column.where(parent_id: column_ids).where.not(body: [nil, ""]).group(:parent_id).count : {}
   end
 
   def show
-    # 1. 閲覧中のドメインで、その記事のジャンルが表示許可されているか再チェック
-    allowed_genres_for_show = case request.host
-                             when "ri-plus.jp"
-                               ["app"]
-                             when "自販機.net"
-                               ["vender"]
-                             when "j-work.jp"
-                               ["cargo", "cleaning", "logistics", "event", "housekeeping", "babysitter"]
-                             when "okey.work"
-                               ["cleaning"]
-                             when "column.okey.work"
-                               nil # 全許可
-                             else
-                               nil
-                             end
+    # 1. ドメインごとの閲覧権限チェック
+    allowed_for_host = case request.host
+                        when /ri-plus\.jp/ then ["app"]
+                        when /自販機\.net/ then ["vender"]
+                        when /j-work\.jp/ then ["cargo", "cleaning", "logistics", "event", "housekeeping", "babysitter"]
+                        when /^okey\.work$/ then ["cleaning"]
+                        when /column\.okey\.work/ then nil
+                        else nil
+                        end
 
-    # 記事のジャンルが許可リストにない場合は404（appの記事をj-workで開こうとした場合など）
-    if allowed_genres_for_show.present? && !allowed_genres_for_show.include?(@column.genre)
+    # 許可リストがあるドメインで、記事のジャンルが不一致なら404
+    if allowed_for_host.present? && !allowed_for_host.include?(@column.genre)
       return render_404
     end
 
-    # 2. 正規URL（301リダイレクト）ロジック
-    # パラメータにgenreが含まれている正規ルートでのアクセスか確認
-    correct_path = if allowed_genres_for_show.nil? || params[:genre].blank?
-                     # 管理画面やハブサイトは通常のパス
-                     column_path(@column)
-                   else
-                     # 各サイトの正規パス (:genre/columns/:id)
-                     columns_show_path(genre: @column.genre, id: @column.code)
-                   end
-
-    if correct_path && request.path != correct_path
-      return redirect_to correct_path, status: :moved_permanently
+    # 2. 正規URL（301リダイレクト）
+    # routes.rbの制約に合わせ、各ドメインでは必ず「:genre/columns/:id」の形にする
+    if allowed_for_host.present?
+      correct_path = columns_show_path(genre: @column.genre, id: @column.code)
+      if request.path != correct_path
+        return redirect_to correct_path, status: :moved_permanently
+      end
+    elsif request.host == "column.okey.work"
+      # ハブサイトは /columns/:id
+      correct_path = column_path(@column)
+      if request.path != correct_path
+        return redirect_to correct_path, status: :moved_permanently
+      end
     end
 
-    # 記事詳細表示用データの準備
-    if @column.article_type == "pillar"
-      @children = @column.children.where.not(status: "draft").where.not(body: [nil, ""]).order(updated_at: :desc)
-    else
-      @children = []
-    end
+    # 3. 表示用データ
+    @children = @column.article_type == "pillar" ? @column.children.where.not(status: "draft").where.not(body: [nil, ""]).order(updated_at: :desc) : []
 
-    # Markdownパース
     markdown_body = @column.body.presence || "## 記事はまだ生成されていません。"
     raw_html_body = Kramdown::Document.new(markdown_body).to_html
     sanitized_html_body = raw_html_body.gsub(/<span[^>]*>|<\/span>/, '').gsub(/ style=\"[^\"]*\"/, '')
