@@ -2,3 +2,5 @@
 
 User-agent: *
 Disallow:
+
+Sitemap: https://kurasera.life/sitemaps/sitemap.xml.gz
