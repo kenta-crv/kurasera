@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
   helper_method :breadcrumbs
 
 
-    def current_client
+  def current_client
     return @current_client if defined?(@current_client)
     return OpenStruct.new(expired?: false) if Rails.env.development?
     super
@@ -29,7 +29,7 @@ class ApplicationController < ActionController::Base
   end
 
   protected
-def after_sign_in_path_for(resource)
+  def after_sign_in_path_for(resource)
   if resource.is_a?(Admin)
     # Admin用のダッシュボードがないようなので、一旦 root か columns 一覧へ
     return root_path
