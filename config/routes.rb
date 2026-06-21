@@ -8,6 +8,8 @@ Rails.application.routes.draw do
     registrations: 'admins/registrations'
   }
 
+  devise_for :clients
+
   require 'sidekiq/web'
   authenticate :admin do 
     mount Sidekiq::Web, at: "/sidekiq"

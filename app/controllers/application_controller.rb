@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
   def current_client
     return @current_client if defined?(@current_client)
     return OpenStruct.new(expired?: false) if Rails.env.development?
-    super
+    warden.authenticate(scope: :client)
   end
 
   def check_trial_expiration
