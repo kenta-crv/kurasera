@@ -44,4 +44,7 @@ Rails.application.routes.draw do
 
   get 'draft/progress', to: 'draft#progress', as: :draft_progress
   resources :contracts
+
+  resources :columns, only: [:index, :show]
+  
 end
