@@ -15,7 +15,7 @@ class PagesController < ApplicationController
   def babysitter; end
   def event; end
   def logistics; end
-  def app; end
+  def columns; end
   def ads; end
   def short; end
 
