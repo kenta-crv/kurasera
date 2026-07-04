@@ -1,6 +1,4 @@
-# See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-
 User-agent: *
 Disallow:
 
-Sitemap: https://kurasera.life/sitemaps/sitemap.xml.gz
+Sitemap: https://kurasera.life/sitemap.xml
