@@ -82,29 +82,6 @@
                   .col-12
                     = f.submit "まずは無料で見積から", class: "btn hero-main-submit w-100"
       .hero-main-overlay
-    /section.brand-marquee-section.py-4
-      .brand-marquee
-        .brand-track
-          = image_tag "icon-1.png", alt: "Icon 1"
-          = image_tag "icon-2.png", alt: "Icon 2"
-          = image_tag "icon-3.png", alt: "Icon 3"
-          = image_tag "icon-4.png", alt: "Icon 4"
-          = image_tag "icon-5.png", alt: "Icon 5"
-          = image_tag "icon-6.png", alt: "Icon 6"
-          = image_tag "icon-7.png", alt: "Icon 7"
-          = image_tag "icon-8.png", alt: "Icon 8"
-          = image_tag "icon-9.png", alt: "Icon 9"
-          = image_tag "icon-10.png", alt: "Icon 10"
-          = image_tag "icon-1.png", alt: "Icon 1"
-          = image_tag "icon-2.png", alt: "Icon 2"
-          = image_tag "icon-3.png", alt: "Icon 3"
-          = image_tag "icon-4.png", alt: "Icon 4"
-          = image_tag "icon-5.png", alt: "Icon 5"
-          = image_tag "icon-6.png", alt: "Icon 6"
-          = image_tag "icon-7.png", alt: "Icon 7"
-          = image_tag "icon-8.png", alt: "Icon 8"
-          = image_tag "icon-9.png", alt: "Icon 9"
-          = image_tag "icon-10.png", alt: "Icon 10"
     section#service.japan-notyo-section
       .japan-notyo-container
         .japan-notyo-column.japan-notyo-text-column
@@ -398,24 +375,6 @@
 
 
 
-    .section#case.cards-moos-section.py-5
-      .container.text-center
-        h2.cards-moos-title.mb-5
-          | 家事代行お役立ち記事
-        .row.g-4.cards-moos-row
-          - Column.where(genre: "cleaning").order(created_at: :desc).limit(3).each do |column|
-            .col-lg-4.col-md-6
-              = link_to column_path(column), class: "cards-moos-link" do
-                .cards-moos-card
-                  - if column.file.present?
-                    = image_tag column.file.to_s, width:"100%", class: 'column-thumb', alt: column.title
-                  h3.cards-moos-heading
-                    = column.title
-                  p.cards-moos-desc
-                    = truncate(column.description, length: 200)
-        .mt-4
-          = columns_index_link("cleaning", "家事代行の記事一覧を見る")
-          
     section.faq-japan-section.py-5
       .container.text-center
         h2.faq-japan-title.mb-5
