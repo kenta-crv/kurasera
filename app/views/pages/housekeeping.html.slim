@@ -465,6 +465,15 @@
               p.cards-moos-desc
                 |  乳幼児がいて目が離せない中、水回りや掃除機掛けを任せられるので本当に助かっています。育児に専念できる心の余裕ができました。
 
+    section.sp-columns-seo
+      .sp-section-header
+        h2 お役立ち記事
+        p 家事代行の選び方・料金・活用法
+      ul.sp-columns-seo__list
+        - featured_columns_for(:housekeeping).each do |item|
+          li = link_to item[:title], item[:path]
+      p.sp-columns-seo__more
+        = link_to "記事一覧を見る", "/columns"
 
     section#inquiry
       .container

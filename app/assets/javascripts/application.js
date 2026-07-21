@@ -15,6 +15,24 @@
 //= require turbolinks
 //= require_tree .
 
+// LP 切替時のスクロール位置復元を防ぐ
+(function resetLpScrollOnVisit() {
+  const isLpPage = () => !!document.querySelector('.hero-main-section');
+  const forceTop = () => {
+    if (!isLpPage()) return;
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  forceTop();
+  document.addEventListener('DOMContentLoaded', forceTop);
+  document.addEventListener('turbolinks:load', forceTop);
+  document.addEventListener('turbo:load', forceTop);
+  window.addEventListener('pageshow', (e) => { if (e.persisted) forceTop(); });
+  requestAnimationFrame(forceTop);
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   const mobileNavToggle = document.getElementById('mobile-nav-toggle');
   const mobileNavMenu = document.getElementById('mobile-nav-menu');

@@ -96,7 +96,7 @@ section.ser-mos-section#business
   .container.ser-mos-panel
     .row.g-4
       .col-lg-4
-        = link_to baby_path, class: "cards-moos-link text-decoration-none" do
+        = link_to baby_path, class: "cards-moos-link text-decoration-none", data: { turbolinks: false } do
           article.ser-mos-card
             .ser-mos-card-media
               = image_tag "babysitter-image1.png", class: "ser-mos-card-img", alt: "ベビーシッター"
@@ -108,7 +108,7 @@ section.ser-mos-section#business
               | 詳しく見る
               = image_tag "left-icon.png", class: "ser-mos-btn-ic", alt: "arrow"
       .col-lg-4
-        = link_to babysitter_path, class: "cards-moos-link text-decoration-none" do
+        = link_to babysitter_path, class: "cards-moos-link text-decoration-none", data: { turbolinks: false } do
           article.ser-mos-card
             .ser-mos-card-media
               = image_tag "babysitter-image.png", class: "ser-mos-card-img", alt: "外国人ベビーシッター"
@@ -120,7 +120,7 @@ section.ser-mos-section#business
               | 詳しく見る
               = image_tag "left-icon.png", class: "ser-mos-btn-ic", alt: "arrow"
       .col-lg-4
-        = link_to housekeeping_path, class: "cards-moos-link text-decoration-none" do
+        = link_to housekeeping_path, class: "cards-moos-link text-decoration-none", data: { turbolinks: false } do
           article.ser-mos-card
             .ser-mos-card-media
               = image_tag "housekeeping-image.png", class: "ser-mos-card-img", alt: "家事代行"
@@ -160,6 +160,16 @@ section.main-moss-section
           | スポット利用から定期契約まで幅広く対応。
           br
           | 育児・家事の状況に合わせて最適なプランをご提案します。
+
+section.sp-columns-seo
+  .sp-section-header
+    h2 お役立ち記事
+    p 暮らし・家事・育児の負担を軽くする解説
+  ul.sp-columns-seo__list
+    - featured_columns_for(:top).each do |item|
+      li = link_to item[:title], item[:path]
+  p.sp-columns-seo__more
+    = link_to "記事一覧を見る", "/columns"
 
 section#inquiry.py-5(style="background-image: url(#{asset_path('bg-imagee.png')}); background-size: cover; background-position: center;")
   .container.text-center

@@ -433,6 +433,16 @@
               p.cards-moos-desc
                 |  急な出張中に子供の面倒と、宿題を見てもらいました。シッターさんがとてもフレンドリーで、子供も「次はいつ来るの？」と楽しみにしています。教育と保育・家事を両立できるのが魅力です。
 
+    section.sp-columns-seo
+      .sp-section-header
+        h2 お役立ち記事
+        p 育児と家事の両立に役立つ解説
+      ul.sp-columns-seo__list
+        - featured_columns_for(:baby).each do |item|
+          li = link_to item[:title], item[:path]
+      p.sp-columns-seo__more
+        = link_to "記事一覧を見る", "/columns"
+
     section#inquiry
       .container
         .col-lg-12

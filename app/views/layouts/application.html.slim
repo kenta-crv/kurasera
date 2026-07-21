@@ -10,8 +10,7 @@ html lang="ja"
   body
     = render "layouts/header"
 
-    .hero
-      = render "shared/breadcrumbs" if breadcrumbs.any?
+    = render "shared/breadcrumbs" if breadcrumbs.any?
 
     - if params[:sent] == '1'
       .flash-message.alert.alert-success role="alert"
@@ -31,5 +30,16 @@ html lang="ja"
         = message
 
     = yield
+
+    footer.ks-footer
+      .ks-footer__inner
+        p.ks-footer__heading サービス・コンテンツ
+        ul.ks-footer__list
+          li = link_to "トップ", root_path, data: { turbolinks: false }
+          li = link_to "お役立ち記事", "/columns", data: { turbolinks: false }
+          li = link_to "ベビーシッター", baby_path, data: { turbolinks: false }
+          li = link_to "外国人シッター", babysitter_path, data: { turbolinks: false }
+          li = link_to "家事代行", housekeeping_path, data: { turbolinks: false }
+      p.ks-footer__copy &copy; #{Time.current.year} 株式会社J Work / kurasera.life
 
     = javascript_include_tag "application", "data-turbolinks-track": "reload"

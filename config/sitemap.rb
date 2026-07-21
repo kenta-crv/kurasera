@@ -1,12 +1,51 @@
+require 'net/http'
+require 'nokogiri'
+
 SitemapGenerator::Sitemap.default_host = "https://kurasera.life"
 SitemapGenerator::Sitemap.include_root = false
 
 SitemapGenerator::Sitemap.create do
-  # トップ（ポータル）
   add '/', changefreq: 'weekly', priority: 1.0
 
-  # 暮らしサポートLP
   add '/baby',         changefreq: 'monthly', priority: 0.9
   add '/babysitter',   changefreq: 'monthly', priority: 0.9
   add '/housekeeping', changefreq: 'monthly', priority: 0.9
+
+  add '/columns', changefreq: 'daily', priority: 0.6
+
+  column_codes = []
+  page = 1
+
+  begin
+    loop do
+      uri = URI("https://kurasera.life/columns?page=#{page}")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.open_timeout = 10
+      http.read_timeout = 20
+      res = http.request(Net::HTTP::Get.new(uri))
+      break unless res.is_a?(Net::HTTPSuccess)
+
+      doc = Nokogiri::HTML(res.body)
+      links = doc.css('a[href*="/columns/"]').map { |a| a['href'] }
+                  .map { |href| href.to_s.split('?').first }
+                  .select { |href| href.match?(%r{/columns/[^/]+/?\z}) }
+                  .map { |href| href.sub(%r{\A.*/columns/}, '').delete_suffix('/') }
+                  .reject(&:blank?)
+
+      break if links.empty?
+
+      column_codes.concat(links)
+      page += 1
+      break if page > 100
+    end
+  rescue StandardError => e
+    warn "[sitemap] columns scrape failed: #{e.class}: #{e.message}"
+  end
+
+  column_codes.uniq.each do |code|
+    add "/columns/#{code}",
+        changefreq: 'weekly',
+        priority: 0.5
+  end
 end

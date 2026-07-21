@@ -1,5 +1,6 @@
 class PagesController < ApplicationController
   before_action :initialize_contract
+  before_action :set_breadcrumbs
 
   def index; end
   def baby; end
@@ -13,8 +14,9 @@ class PagesController < ApplicationController
   end
 
   def set_breadcrumbs
-    add_breadcrumb 'トップ', root_path
+    return if action_name == "index"
 
+    add_breadcrumb "トップ", root_path
     label = LpDefinition.label(action_name)
     add_breadcrumb label, request.path if label
   end

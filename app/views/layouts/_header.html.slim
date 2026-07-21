@@ -8,13 +8,15 @@ header.custom-navbar.py-2
     nav.nav-menu.d-none.d-lg-flex
       ul.d-flex.list-unstyled.mb-0
         li
-          = link_to "トップページ", root_path, class: "nav-link-custom"
+          = link_to "トップページ", root_path, class: "nav-link-custom", data: { turbolinks: false }
         li
-          = link_to "ベビーシッター", baby_path, class: "nav-link-custom"
+          = link_to "お役立ち記事", "/columns", class: "nav-link-custom", data: { turbolinks: false }
         li
-          = link_to "外国人シッター", babysitter_path, class: "nav-link-custom"
+          = link_to "ベビーシッター", baby_path, class: "nav-link-custom", data: { turbolinks: false }
         li
-          = link_to "家事代行", housekeeping_path, class: "nav-link-custom"
+          = link_to "外国人シッター", babysitter_path, class: "nav-link-custom", data: { turbolinks: false }
+        li
+          = link_to "家事代行", housekeeping_path, class: "nav-link-custom", data: { turbolinks: false }
     nav.mobile-nav.d-lg-none
       #mobile-nav-toggle.mobile-nav-toggle
         span.hamburger-line
@@ -27,13 +29,15 @@ header.custom-navbar.py-2
             span.close-line
         ul.mobile-nav-list
           li
-            = link_to "トップページ", root_path, class: "nav-link-custom"
+            = link_to "トップページ", root_path, class: "nav-link-custom", data: { turbolinks: false }
           li
-            = link_to "ベビーシッター", baby_path, class: "nav-link-custom"
+            = link_to "お役立ち記事", "/columns", class: "nav-link-custom", data: { turbolinks: false }
           li
-            = link_to "外国人シッター", babysitter_path, class: "nav-link-custom"
+            = link_to "ベビーシッター", baby_path, class: "nav-link-custom", data: { turbolinks: false }
           li
-            = link_to "家事代行", housekeeping_path, class: "nav-link-custom"
+            = link_to "外国人シッター", babysitter_path, class: "nav-link-custom", data: { turbolinks: false }
+          li
+            = link_to "家事代行", housekeeping_path, class: "nav-link-custom", data: { turbolinks: false }
         .mobile-nav-actions
           button.btn.contact-btn.d-flex.align-items-center.gap-2
             a.nav-link-custom href="javascript:void(0)" data-target="inquiry" お問い合わせ
