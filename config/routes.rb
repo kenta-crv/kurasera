@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   get 'baby',         to: 'pages#baby'
   get 'babysitter',   to: 'pages#babysitter'
   get 'housekeeping', to: 'pages#housekeeping'
+  get 'living',       to: 'pages#living'
 
   resources :contracts
 end

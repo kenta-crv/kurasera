@@ -6,6 +6,7 @@ class PagesController < ApplicationController
   def baby; end
   def babysitter; end
   def housekeeping; end
+  def living; end
 
   private
 

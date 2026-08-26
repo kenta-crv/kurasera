@@ -10,6 +10,8 @@ header.custom-navbar.py-2
         li
           = link_to "トップページ", root_path, class: "nav-link-custom", data: { turbolinks: false }
         li
+          = link_to "暮らしサポート", living_path, class: "nav-link-custom", data: { turbolinks: false }
+        li
           = link_to "お役立ち記事", "/columns", class: "nav-link-custom", data: { turbolinks: false }
         li
           = link_to "ベビーシッター", baby_path, class: "nav-link-custom", data: { turbolinks: false }
@@ -31,6 +33,8 @@ header.custom-navbar.py-2
           li
             = link_to "トップページ", root_path, class: "nav-link-custom", data: { turbolinks: false }
           li
+            = link_to "暮らしサポート", living_path, class: "nav-link-custom", data: { turbolinks: false }
+          li
             = link_to "お役立ち記事", "/columns", class: "nav-link-custom", data: { turbolinks: false }
           li
             = link_to "ベビーシッター", baby_path, class: "nav-link-custom", data: { turbolinks: false }
@@ -40,9 +44,9 @@ header.custom-navbar.py-2
             = link_to "家事代行", housekeeping_path, class: "nav-link-custom", data: { turbolinks: false }
         .mobile-nav-actions
           button.btn.contact-btn.d-flex.align-items-center.gap-2
-            a.nav-link-custom href="javascript:void(0)" data-target="inquiry" お問い合わせ
+            = link_to "お問い合わせ", living_path(anchor: "inquiry"), class: "nav-link-custom", data: { turbolinks: false }
             = image_tag "arrow-down.png", class: "arrow-icon", alt: "Arrow"
     .d-flex.align-items-center.gap-3.d-none.d-lg-flex
       button.btn.contact-btn.d-flex.align-items-center.gap-2
-        a.nav-link-custom href="javascript:void(0)" data-target="inquiry" お問い合わせ
+        = link_to "お問い合わせ", living_path(anchor: "inquiry"), class: "nav-link-custom", data: { turbolinks: false }
         = image_tag "arrow-down.png", class: "arrow-icon", alt: "Arrow"
