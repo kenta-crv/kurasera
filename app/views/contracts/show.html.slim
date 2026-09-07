@@ -36,11 +36,15 @@
               = link_to @contract.url, @contract.url, target: "_blank"
 
         tr
+          th ご利用希望
+          td = @contract.service
+
+        tr
           th 導入時期
           td = @contract.period
 
         tr
-          th 備考
+          th その他ご要望
           td = @contract.message
 
         tr

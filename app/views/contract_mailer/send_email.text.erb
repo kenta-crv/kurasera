@@ -1,8 +1,8 @@
 <%= @contract.company%> <%= @contract.name%>様
 
-この度は株式会社セールスプロにお問い合わせ頂きありがとうございました。
+この度はクラセラにお問い合わせ頂きありがとうございました。
 
-以下の内容にて承りました。内容確認し、担当者よりご連絡差し上げます。
+以下の内容にて承りました。内容を確認し、メールにてお見積りをご案内します。
 
 何卒よろしくお願い致します。
 
@@ -11,10 +11,18 @@
 電話番号: <%= @contract.tel%>
 所在地: <%= @contract.address%>
 メールアドレス: <%= @contract.email%>
-要望:<%= @contract.message %>
+週ご利用希望日数・時間: <%= @contract.service %>
+導入希望: <%= @contract.period %>
+<% if @contract.inquiry_hourly_estimate %>
+金額目安: <%= ActiveSupport::NumberHelper.number_to_delimited(@contract.inquiry_hourly_estimate) %>円〜／時間（<%= @contract.inquiry_area_label %>）
+<% if @contract.inquiry_monthly_estimate %>
+月額目安: <%= ActiveSupport::NumberHelper.number_to_delimited(@contract.inquiry_monthly_estimate) %>円〜（4週換算）
+<% end %>
+<% end %>
+その他ご要望:<%= @contract.message %>
 --------------------------
 
-株式会社セールスプロ
+株式会社J Work
 Mail：info@okey.work
 URL：https://okey.work
-所在地：東京都港区芝5-27-3 MBC・Aー9
+所在地：東京都港区浜松町２丁目２番１５号２Ｆ

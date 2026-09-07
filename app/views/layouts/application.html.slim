@@ -1,6 +1,7 @@
 - top_home = controller_name == "pages" && action_name == "index"
+- home_care_lp = controller_name == "pages" && action_name == "home_care"
 doctype html
-html lang="ja" class=(top_home ? "jw-top-page" : nil)
+html lang="ja" class=(top_home ? "jw-top-page" : (home_care_lp ? "kslp-page" : nil))
   head
     = render "layouts/head"
 
@@ -9,10 +10,10 @@ html lang="ja" class=(top_home ? "jw-top-page" : nil)
     link rel="canonical" href=canonical_url
 
   body
-    - unless top_home
+    - unless top_home || home_care_lp
       = render "layouts/header"
 
-    - unless top_home
+    - unless top_home || home_care_lp
       = render "shared/breadcrumbs" if breadcrumbs.any?
 
     - if params[:sent] == '1'
@@ -26,16 +27,25 @@ html lang="ja" class=(top_home ? "jw-top-page" : nil)
               'value': 1.0,
               'currency': 'JPY'
           });
+          (function () {
+            var flash = document.querySelector('.flash-message');
+            if (!flash) return;
+            setTimeout(function () {
+              flash.style.transition = 'opacity 0.5s ease';
+              flash.style.opacity = '0';
+              setTimeout(function () { flash.remove(); }, 500);
+            }, 3000);
+          })();
 
     - flash.each do |type, message|
       - tag_class = (type == 'notice' ? 'success' : 'danger')
       div class="flash-message alert alert-#{tag_class}" role="alert"
         = message
 
-    main class=(top_home ? "jw-top-main" : nil)
+    main class=(top_home ? "jw-top-main" : (home_care_lp ? "kslp-main" : nil))
       = yield
 
-    - unless top_home
+    - unless top_home || home_care_lp
       footer.ks-footer
         .ks-footer__inner
           p.ks-footer__heading サービス・コンテンツ

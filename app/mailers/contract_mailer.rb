@@ -6,9 +6,9 @@ class ContractMailer < ActionMailer::Base
     @contract = contract
     # 修正：引数にまとめて設定を書く
     mail(
-      from: @contract.email,
+      from: @contract.email.presence || "info@j-work.jp",
       to: "info@j-work.jp", # ここも正しいドメイン付きアドレスに
-      subject: '株式会社セールスプロにお問い合わせがありました'
+      subject: 'クラセラにお問い合わせがありました'
     )
   end
 

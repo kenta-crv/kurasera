@@ -1,8 +1,8 @@
 module ApplicationHelper
   def default_meta_tags
     {
-      site: "暮らしのサポートなら『J Work』｜ベビーシッター・家事代行",
-      description: "ベビーシッター・外国人シッター・家事代行まで。暮らしを支えるサービスなら『J Work』（kurasera.life）にお任せください。",
+      site: "暮らしのサポートなら『クラセラ』｜ベビーシッター・家事代行",
+      description: "ベビーシッター・外国人シッター・家事代行まで。暮らしを支えるサービスなら『クラセラ』（kurasera.life）にお任せください。",
       canonical: request.original_url,
       charset: "UTF-8",
       reverse: true,
@@ -45,7 +45,7 @@ module ApplicationHelper
       "description" => "ベビーシッター・家事代行など、暮らしのサポートならクラセラ。",
       "address" => {
         "@type" => "PostalAddress",
-        "streetAddress" => "芝5-27-3 MBC・Aー9",
+        "streetAddress" => "浜松町２丁目２番１５号２Ｆ",
         "addressLocality" => "港区",
         "addressRegion" => "東京都",
         "addressCountry" => "JP"
@@ -121,8 +121,35 @@ module ApplicationHelper
         { q: "お食事の準備はお願いできますか？", a: "お客様のご要望に応じて、家事代行・ベビーシッターと併用してこなさせて頂きますので、お料理もお任せください。" },
         { q: "日本語でのコミュニケーションは取れますか？", a: "当社のスタッフは日本での在住が10〜30年ほどの永住ビザスタッフとなります。日本語コミュニケーションは全く問題ございません。" }
       ]
+    when "home_care"
+      [
+        { category: "service", q: "どのようなスタッフが来ますか？", a: "家事経験のあるスタッフが伺います。" },
+        { category: "service", q: "不在時でもお願いできますか？", a: "はい。鍵をお預かりしての不在時サービスも可能です。鍵は当社の預かり規定に沿って管理します。" },
+        { category: "service", q: "お掃除道具はこちらで用意しますか？", a: "基本的にご自宅の道具・洗剤をお借りして作業します。" },
+        { category: "service", q: "料理もお願いできますか？", a: "可能です。作り置きや夕食の準備など、ご要望に合わせて料理経験のあるスタッフを調整します。" },
+        { category: "service", q: "プライバシーは守られますか？", a: "ご家庭の情報は外部に出しません。" },
+        { category: "pricing", q: "料金の目安はいくらですか？", a: "全国の最安プランの目安は2,400円〜／時間です。都道府県とプランで変わります。料金表で都道府県を選ぶと目安が出ます。" },
+        { category: "pricing", q: "1回だけお願いできますか？", a: "定期でのご利用です。週1回から始められます。" },
+        { category: "pricing", q: "何時間から頼めますか？", a: "2時間からです。" },
+        { category: "pricing", q: "交通費はかかりますか？", a: "交通費は実費です。" },
+        { category: "setup", q: "申し込みから利用開始までの流れは？", a: "お問い合わせのあと、金額と範囲に納得いただいてから対応できるスタッフを選定し、ご自宅へ伺います。" },
+        { category: "setup", q: "お見積りは無料ですか？", a: "はい。お見積りは無料です。" },
+        { category: "setup", q: "週何回から利用できますか？", a: "週1回から利用できます。" },
+        { category: "usage", q: "対応エリアはどこですか？", a: "日本全国です。" },
+        { category: "usage", q: "希望の曜日や時間に来てもらえますか？", a: "ご希望の曜日・時間に合わせて伺います。" },
+        { category: "usage", q: "急なキャンセルは可能ですか？", a: "前日の所定の時間までにご連絡いただければ、変更・キャンセルは無料です。詳細は契約時の規約をご確認ください。" }
+      ]
     else
       []
     end
+  end
+
+  def home_care_faq_categories
+    [
+      ["service", "サービスについて", "mail"],
+      ["pricing", "料金", "calc"],
+      ["setup", "申し込み・開始", "calendar"],
+      ["usage", "ご利用について", "clock"]
+    ]
   end
 end

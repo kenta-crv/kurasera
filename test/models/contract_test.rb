@@ -20,4 +20,17 @@ class ContractTest < ActiveSupport::TestCase
 
     assert contract.valid?
   end
+
+  test "name-only home care inquiry is valid" do
+    contract = Contract.new(
+      name: "山田太郎",
+      address: "東京都港区芝5-27-3",
+      weekly_days: "3",
+      daily_hours: "4",
+      period: "すぐにでも"
+    )
+
+    assert contract.valid?
+    assert_equal "週3日・1日4時間", contract.service
+  end
 end

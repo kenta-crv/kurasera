@@ -1,9 +1,17 @@
-『株式会社セールスプロ』にお問い合わせがありました。
+『クラセラ』にお問い合わせがありました。
 
 --------------------------
 お名前: <%= @contract.company%> <%= @contract.name%>
 電話番号: <%= @contract.tel%>
 住所: <%= @contract.address%>
 メールアドレス: <%= @contract.email%>
-要望:<%= @contract.message %>
+週ご利用希望日数・時間: <%= @contract.service %>
+導入希望: <%= @contract.period %>
+<% if @contract.inquiry_hourly_estimate %>
+金額目安: <%= ActiveSupport::NumberHelper.number_to_delimited(@contract.inquiry_hourly_estimate) %>円〜／時間（<%= @contract.inquiry_area_label %>）
+<% if @contract.inquiry_monthly_estimate %>
+月額目安: <%= ActiveSupport::NumberHelper.number_to_delimited(@contract.inquiry_monthly_estimate) %>円〜（4週換算）
+<% end %>
+<% end %>
+その他ご要望:<%= @contract.message %>
 --------------------------

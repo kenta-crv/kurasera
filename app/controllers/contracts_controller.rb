@@ -13,14 +13,25 @@ class ContractsController < ApplicationController
     def create
   @contract = Contract.new(contract_params)
 
-  # 送信元のURLを特定（j-work.jp/xxx などの元のページ）
-  # 取得できない場合は自サイトのrootへ
-  origin_url = request.referer || root_path
+  origin_url = if @contract.origin.to_s.start_with?('/')
+    @contract.origin
+  else
+    request.referer || root_path
+  end
+
+  via = params[:contact_via].to_s
+  if via == 'line'
+    @contract.message = ['依頼経路: LINE', @contract.message.presence].compact.join("\n")
+  end
 
   if @contract.save
-    # メール送信
     ContractMailer.received_email(@contract).deliver_now
-    ContractMailer.send_email(@contract).deliver_now
+    ContractMailer.send_email(@contract).deliver_now if @contract.email.present?
+
+    if via == 'line'
+      redirect_to LpDefinition.line_consult_url, allow_other_host: true
+      return
+    end
 
     # 成功：元のページに「sent=1」を付けて戻す
     separator = origin_url.include?('?') ? '&' : '?'
@@ -63,6 +74,7 @@ end
     end
 
     private
+
     def contract_params
       params.require(:contract).permit(
       :company, #会社名
@@ -71,6 +83,9 @@ end
       :email, #メールアドレス
       :address, #所在地
       :url,
+      :service,
+      :weekly_days,
+      :daily_hours,
       :period, #導入時期
       :message, #備考
       :origin,
