@@ -18,7 +18,10 @@ html lang="ja" class=(top_home ? "jw-top-page" : (home_care_lp ? "kslp-page" : n
 
     - if params[:sent] == '1'
       .flash-message.alert.alert-success role="alert"
-        | 送信完了しました
+        - if home_care_lp
+          | 送信が完了しました。内容を info@j-work.jp に通知しました。
+        - else
+          | 送信完了しました
 
       script
         |
@@ -26,6 +29,15 @@ html lang="ja" class=(top_home ? "jw-top-page" : (home_care_lp ? "kslp-page" : n
               'send_to': 'AW-10998015402/P0wGCMmaqZQcEKrLofwo',
               'value': 1.0,
               'currency': 'JPY'
+          });
+          ytag({
+            "type":"yjad_conversion",
+            "config":{
+              "yahoo_ydn_conv_io": "sExy6wrWFcaJvWNk_H95ZA..",
+              "yahoo_ydn_conv_label": "OOWU7PJ9D37IA8DZF21378038",
+              "yahoo_ydn_conv_transaction_id": "",
+              "yahoo_ydn_conv_value": "0"
+            }
           });
           (function () {
             var flash = document.querySelector('.flash-message');

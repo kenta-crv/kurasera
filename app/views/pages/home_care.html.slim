@@ -640,88 +640,112 @@
       .kh-modal__panel
         button.kh-modal__close type="button" data-close-contact="true" aria-label="閉じる" ×
         header.kh-modal__head
-          h2.kh-modal__title 料金を出して相談する
-          p.kh-modal__lead ご住所・週の日数・1日の時間を入れると、時間単価がその場で出ます。
+          - if params[:sent] == '1'
+            h2.kh-modal__title 送信が完了しました
+            p.kh-modal__lead 内容を info@j-work.jp に通知しました。
+          - else
+            h2.kh-modal__title 料金を出して相談する
+            p.kh-modal__lead ご住所・週の日数・1日の時間を入れると、時間単価がその場で出ます。
           ol.kh-quote-steps
-            li.kh-quote-steps__item.is-current
+            li.kh-quote-steps__item class=(params[:sent] == '1' ? 'is-done' : 'is-current')
               span 1
               | 条件を入力
-            li.kh-quote-steps__item
+            li.kh-quote-steps__item class=('is-done' if params[:sent] == '1')
               span 2
               | 単価を確認
-            li.kh-quote-steps__item
+            li.kh-quote-steps__item class=(params[:sent] == '1' ? 'is-current' : nil)
               span 3
               | LINEで申込
         - if params[:error] == '1'
           p.kh-form-error 送信に失敗しました。入力内容をご確認のうえ、再度お試しください。
-        = form_with model: @contract, url: contracts_path, local: true, html: { class: 'kh-form kh-quote', id: 'home-care-quote' } do |f|
-          = f.hidden_field :origin, value: request.path
-          .kh-quote__main
-            fieldset.kh-quote__group
-              legend ご利用条件
-              p.kh-quote__hint この3つで単価が決まります。
-              .kh-form__field
-                label.kh-form__label for="kh-form-address"
-                  | ご住所
-                  span.kh-form__badge.kh-form__badge--required 必須
-                = f.text_field :address, id: 'kh-form-address', class: 'kh-form__input', placeholder: '都道府県からご入力ください', required: true, autocomplete: 'street-address'
-                p.kh-form__help 都道府県を含めると、その地域の単価になります。
-              .kh-form__pair
+        - if params[:sent] == '1'
+          .kh-form-success
+            p.kh-form-success__title 担当者へ通知済みです
+            p.kh-form-success__body
+              | ご入力内容を
+              a href="mailto:info@j-work.jp" info@j-work.jp
+              | に通知しました。続いて公式LINEの友だち追加へ進みます。
+            = link_to LpDefinition.line_consult_url, class: 'kh-contact-button kh-contact-button--line', data: { turbolinks: false } do
+              span.kh-contact-button__icon aria-hidden="true"
+                svg.kh-ico.kh-ico--solid
+                  use href="#kh-i-line"
+              span.kh-contact-button__copy
+                strong LINEで友だち追加
+                small 通知済みの内容でご案内します
+        - else
+          = form_with model: @contract, url: contracts_path, local: true, html: { class: 'kh-form kh-quote', id: 'home-care-quote' } do |f|
+            = f.hidden_field :origin, value: request.path
+            .kh-quote__main
+              fieldset.kh-quote__group
+                legend ご利用条件
+                p.kh-quote__hint この3つで単価が決まります。
                 .kh-form__field
-                  p.kh-form__label#kh-weekly-days-label
-                    | 週のご利用日数
+                  label.kh-form__label for="kh-form-address"
+                    | ご住所
                     span.kh-form__badge.kh-form__badge--required 必須
-                  = f.select :weekly_days, [['週1日', '1'], ['週2日', '2'], ['週3日', '3'], ['週4日', '4'], ['週5日', '5'], ['週6日', '6'], ['毎日', '7']], { include_blank: '選択してください' }, { id: 'kh-weekly-days', class: 'kh-form__native', required: true, 'aria-labelledby': 'kh-weekly-days-label' }
-                  .kh-choice-row role="group" aria-labelledby="kh-weekly-days-label" data-choice-for="kh-weekly-days"
-                    - [['1', '週1'], ['2', '週2'], ['3', '週3'], ['4', '週4'], ['5', '週5'], ['6', '週6'], ['7', '毎日']].each do |value, label|
-                      button.kh-choice type="button" data-choice-value=value = label
-                .kh-form__field
-                  p.kh-form__label#kh-daily-hours-label
-                    | 1日の時間
-                    span.kh-form__badge.kh-form__badge--required 必須
-                  = f.select :daily_hours, [['2時間', '2'], ['3時間', '3'], ['4時間', '4'], ['5時間', '5'], ['6時間', '6'], ['7時間', '7'], ['8時間', '8']], { include_blank: '選択してください' }, { id: 'kh-daily-hours', class: 'kh-form__native', required: true, 'aria-labelledby': 'kh-daily-hours-label' }
-                  .kh-choice-row role="group" aria-labelledby="kh-daily-hours-label" data-choice-for="kh-daily-hours"
-                    - [['2', '2時間'], ['3', '3時間'], ['4', '4時間'], ['5', '5時間'], ['6', '6時間'], ['7', '7時間'], ['8', '8時間']].each do |value, label|
-                      button.kh-choice type="button" data-choice-value=value = label
-            fieldset.kh-quote__group
-              legend お客様情報
-              .kh-form__pair
-                .kh-form__field
-                  label.kh-form__label for="kh-form-name"
-                    | お名前
-                    span.kh-form__badge.kh-form__badge--required 必須
-                  = f.text_field :name, id: 'kh-form-name', class: 'kh-form__input', placeholder: '山田太郎', required: true, autocomplete: 'name'
+                  = f.text_field :address, id: 'kh-form-address', class: 'kh-form__input', placeholder: '都道府県からご入力ください', required: true, autocomplete: 'street-address'
+                  p.kh-form__help 都道府県を含めると、その地域の単価になります。
+                .kh-form__pair
+                  .kh-form__field
+                    p.kh-form__label#kh-weekly-days-label
+                      | 週のご利用日数
+                      span.kh-form__badge.kh-form__badge--required 必須
+                    = f.select :weekly_days, [['週1日', '1'], ['週2日', '2'], ['週3日', '3'], ['週4日', '4'], ['週5日', '5'], ['週6日', '6'], ['毎日', '7']], { include_blank: '選択してください' }, { id: 'kh-weekly-days', class: 'kh-form__native', required: true, 'aria-labelledby': 'kh-weekly-days-label' }
+                    .kh-choice-row role="group" aria-labelledby="kh-weekly-days-label" data-choice-for="kh-weekly-days"
+                      - [['1', '週1'], ['2', '週2'], ['3', '週3'], ['4', '週4'], ['5', '週5'], ['6', '週6'], ['7', '毎日']].each do |value, label|
+                        button.kh-choice type="button" data-choice-value=value = label
+                  .kh-form__field
+                    p.kh-form__label#kh-daily-hours-label
+                      | 1日の時間
+                      span.kh-form__badge.kh-form__badge--required 必須
+                    = f.select :daily_hours, [['2時間', '2'], ['3時間', '3'], ['4時間', '4'], ['5時間', '5'], ['6時間', '6'], ['7時間', '7'], ['8時間', '8']], { include_blank: '選択してください' }, { id: 'kh-daily-hours', class: 'kh-form__native', required: true, 'aria-labelledby': 'kh-daily-hours-label' }
+                    .kh-choice-row role="group" aria-labelledby="kh-daily-hours-label" data-choice-for="kh-daily-hours"
+                      - [['2', '2時間'], ['3', '3時間'], ['4', '4時間'], ['5', '5時間'], ['6', '6時間'], ['7', '7時間'], ['8', '8時間']].each do |value, label|
+                        button.kh-choice type="button" data-choice-value=value = label
+              fieldset.kh-quote__group
+                legend お客様情報
+                .kh-form__pair
+                  .kh-form__field
+                    label.kh-form__label for="kh-form-name"
+                      | お名前
+                      span.kh-form__badge.kh-form__badge--required 必須
+                    = f.text_field :name, id: 'kh-form-name', class: 'kh-form__input', placeholder: '山田太郎', required: true, autocomplete: 'name'
+                  .kh-form__field
+                    label.kh-form__label for="kh-form-tel"
+                      | 電話番号
+                      span.kh-form__badge.kh-form__badge--required 必須
+                    = f.telephone_field :tel, id: 'kh-form-tel', class: 'kh-form__input', placeholder: '050-1234-5678', required: true, autocomplete: 'tel'
                 .kh-form__field
                   label.kh-form__label for="kh-form-period"
                     | 開始希望
                     span.kh-form__badge.kh-form__badge--required 必須
                   = f.select :period, [['すぐにでも', 'すぐにでも'], ['1ヶ月以内', '1ヶ月以内'], ['3ヶ月以内', '3ヶ月以内'], ['未定', '未定']], { include_blank: '選択してください' }, { id: 'kh-form-period', class: 'kh-form__input', required: true }
-              .kh-form__field
-                label.kh-form__label for="kh-form-message"
-                  | その他ご要望
-                  span.kh-form__badge.kh-form__badge--optional 任意
-                = f.text_area :message, id: 'kh-form-message', class: 'kh-form__input kh-form__input--area', placeholder: '掃除、洗濯、希望の曜日など', rows: 3
-          aside.kh-quote__aside
-            .kh-form__estimate#kh-form-estimate.is-pending aria-live="polite"
-              p.kh-form__estimate-wait 週の日数と1日の時間を選ぶと、ここに単価が出ます。
-              .kh-form__estimate-ready
-                p.kh-form__estimate-label 時間単価
-                p.kh-form__estimate-amount
-                  strong#kh-form-estimate-hourly —
-                  span 円〜／時間
-                p.kh-form__estimate-area#kh-form-estimate-area
-                p.kh-form__estimate-month#kh-form-estimate-month
-                p.kh-form__estimate-note 支払いはクレジットカードです。交通費は実費です。
-            .kh-form__actions
-              button#kh-form-line.kh-contact-button.kh-contact-button--line.kh-form__line.is-disabled type="submit" name="contact_via" value="line" disabled="disabled" aria-disabled="true"
-                span.kh-contact-button__icon aria-hidden="true"
-                  svg.kh-ico.kh-ico--solid
-                    use href="#kh-i-line"
-                span.kh-contact-button__copy
-                  strong LINEで申し込む
-                  small 友だち追加へ進む
-              p#kh-form-line-hint.kh-form__submit-hint 週の日数と時間を選ぶと送信できます。
-              p.kh-form__line-note 送信すると内容を保存し、公式LINEの友だち追加を開きます。入力内容はLINEには渡りません。
+                .kh-form__field
+                  label.kh-form__label for="kh-form-message"
+                    | その他ご要望
+                    span.kh-form__badge.kh-form__badge--optional 任意
+                  = f.text_area :message, id: 'kh-form-message', class: 'kh-form__input kh-form__input--area', placeholder: '掃除、洗濯、希望の曜日など', rows: 3
+            aside.kh-quote__aside
+              .kh-form__estimate#kh-form-estimate.is-pending aria-live="polite"
+                p.kh-form__estimate-wait 週の日数と1日の時間を選ぶと、ここに単価が出ます。
+                .kh-form__estimate-ready
+                  p.kh-form__estimate-label 時間単価
+                  p.kh-form__estimate-amount
+                    strong#kh-form-estimate-hourly —
+                    span 円〜／時間
+                  p.kh-form__estimate-area#kh-form-estimate-area
+                  p.kh-form__estimate-month#kh-form-estimate-month
+                  p.kh-form__estimate-note 支払いはクレジットカードです。交通費は実費です。
+              .kh-form__actions
+                button#kh-form-line.kh-contact-button.kh-contact-button--line.kh-form__line.is-disabled type="submit" name="contact_via" value="line" disabled="disabled" aria-disabled="true"
+                  span.kh-contact-button__icon aria-hidden="true"
+                    svg.kh-ico.kh-ico--solid
+                      use href="#kh-i-line"
+                  span.kh-contact-button__copy
+                    strong LINEで申し込む
+                    small 友だち追加へ進む
+                p#kh-form-line-hint.kh-form__submit-hint 週の日数と時間を選ぶと送信できます。
+                p.kh-form__line-note 送信すると内容を保存し、info@j-work.jp へ通知したうえで公式LINEの友だち追加を開きます。入力内容はLINEには渡りません。
 
     section#contact.kh-cta
       .kh-container.kh-cta__inner
@@ -815,7 +839,7 @@
       modal.addEventListener('click', function (e) {
         if (e.target === modal) closeModal();
       });
-      if (#{(params[:error].to_s == '1').to_json}) openModal();
+      if (#{(params[:error].to_s == '1' || params[:sent].to_s == '1').to_json}) openModal();
     })();
 
     (function () {
@@ -922,6 +946,7 @@
       var hoursSelect = document.getElementById('kh-daily-hours');
       var addressInput = document.getElementById('kh-form-address');
       var nameInput = document.getElementById('kh-form-name');
+      var telInput = document.getElementById('kh-form-tel');
       var periodSelect = document.getElementById('kh-form-period');
       var estimateBox = document.getElementById('kh-form-estimate');
       var estimateHourly = document.getElementById('kh-form-estimate-hourly');
@@ -974,9 +999,10 @@
 
       function formReadyToSubmit() {
         var nameOk = nameInput && nameInput.value.trim() !== '';
+        var telOk = telInput && telInput.value.trim() !== '';
         var periodOk = periodSelect && periodSelect.value !== '';
         var addressOk = addressInput && addressInput.value.trim() !== '';
-        return hasQuote() && nameOk && periodOk && addressOk;
+        return hasQuote() && nameOk && telOk && periodOk && addressOk;
       }
 
       function updateLineButton() {
@@ -991,7 +1017,7 @@
         if (!hasQuote()) {
           lineHint.textContent = '週の日数と時間を選ぶと送信できます。';
         } else {
-          lineHint.textContent = 'お名前と開始希望を入れると送信できます。';
+          lineHint.textContent = 'お名前・電話番号と開始希望を入れると送信できます。';
         }
       }
 
@@ -1044,6 +1070,7 @@
       if (hoursSelect) hoursSelect.addEventListener('change', renderFormEstimate);
       if (addressInput) addressInput.addEventListener('input', renderFormEstimate);
       if (nameInput) nameInput.addEventListener('input', updateLineButton);
+      if (telInput) telInput.addEventListener('input', updateLineButton);
       if (periodSelect) periodSelect.addEventListener('change', updateLineButton);
       renderFormEstimate();
 

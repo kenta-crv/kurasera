@@ -16,10 +16,21 @@ class Contract < ApplicationRecord
 
   attr_accessor :weekly_days, :daily_hours
 
+  CJK_CHAR = /[\p{Han}\p{Hiragana}\p{Katakana}]/.freeze
+
   validates :company, presence: true, unless: -> { name.present? }
   validate :company_must_include_kaisha, if: -> { company.present? }
 
   before_validation :assign_service_from_inquiry
+
+  def spam_inquiry?
+    return false if origin.blank?
+
+    name_without_japanese? ||
+      foreign_or_invalid_tel? ||
+      address_without_japanese? ||
+      latin_gibberish_message?
+  end
 
   def prefecture_from_address
     PREF_WAGES.keys.sort_by { |name| -name.length }.find { |name| address.to_s.include?(name) }
@@ -77,5 +88,28 @@ class Contract < ApplicationRecord
     unless company.match?(CORPORATE_NAME_PATTERN)
       errors.add(:company, 'には「株式会社」などの法人格を含める必要があります')
     end
+  end
+
+  def name_without_japanese?
+    filled = [name, company].map { |v| v.to_s.strip }.reject(&:blank?).join
+    filled.blank? || !filled.match?(CJK_CHAR)
+  end
+
+  def foreign_or_invalid_tel?
+    digits = tel.to_s.gsub(/[^0-9+]/, '')
+    return true if digits.blank?
+    return true if digits.start_with?('+') && !digits.start_with?('+81')
+
+    national = digits.sub(/\A\+81/, '0')
+    !national.match?(/\A0\d{9,10}\z/)
+  end
+
+  def address_without_japanese?
+    !address.to_s.match?(CJK_CHAR)
+  end
+
+  def latin_gibberish_message?
+    compact = message.to_s.gsub(/\s/, '')
+    compact.match?(/\A[a-z]{16,}\z/)
   end
 end

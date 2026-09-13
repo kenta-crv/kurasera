@@ -1,6 +1,4 @@
 class ContractsController < ApplicationController
-  protect_from_forgery with: :null_session, only: [:create]
-
   #before_action :authenticate_admin!, only: [:index, :destroy, :send_mail]
     def index
       @contracts = Contract.order(created_at: "DESC").page(params[:page])
@@ -24,11 +22,19 @@ class ContractsController < ApplicationController
     @contract.message = ['依頼経路: LINE', @contract.message.presence].compact.join("\n")
   end
 
+  if @contract.spam_inquiry?
+    Rails.logger.warn("[spam] blocked contract create ip=#{request.remote_ip} origin=#{@contract.origin}")
+    separator = origin_url.include?('?') ? '&' : '?'
+    redirect_to "#{origin_url}#{separator}sent=1"
+    return
+  end
+
   if @contract.save
     ContractMailer.received_email(@contract).deliver_now
     ContractMailer.send_email(@contract).deliver_now if @contract.email.present?
 
-    if via == 'line'
+    # LINE経由も完了画面を出してから友だち追加へ進む（home-care）
+    if via == 'line' && !@contract.origin.to_s.start_with?('/home-care')
       redirect_to LpDefinition.line_consult_url, allow_other_host: true
       return
     end

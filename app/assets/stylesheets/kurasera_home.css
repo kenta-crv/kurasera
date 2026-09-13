@@ -1514,6 +1514,27 @@ html.kslp-page body {
   font-size: 14px;
   font-weight: 700;
 }
+.ks-home-lp .kh-form-success {
+  margin: 0 0 16px;
+  padding: 18px 16px;
+  border-radius: 12px;
+  background: #ecf8ef;
+  color: #14532d;
+}
+.ks-home-lp .kh-form-success__title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.ks-home-lp .kh-form-success__body {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.ks-home-lp .kh-form-success__body a {
+  color: #0869d8;
+}
 .ks-home-lp .kh-form__grid {
   display: grid;
   grid-template-columns: 1fr;

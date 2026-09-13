@@ -1,132 +1,148 @@
-- set_meta_tags title: "暮らしのサポートなら『クラセラ』｜ベビーシッター・家事代行"
-- set_meta_tags description: "ベビーシッター・英語ができる外国人シッター・家事代行まで。暮らしを支えるサービスなら『クラセラ』にお任せください。"
+/ このページの既存ヒーローを、以下に置き換えてください。
+/ 画像は app/assets/images 内の既存ファイルを使用します。
 
-.sp-corp-wrapper.jw-platform
-  header.jw-top-header
-    .jw-top-header__inner
-      = link_to root_path, class: "jw-top-header__logo", data: { turbolinks: false } do
-        = image_tag "logo.png", alt: "クラセラ", class: "jw-top-header__logo-img", width: "176", height: "56"
-      nav.jw-top-header__nav
-        = link_to "暮らしサポート", living_path, data: { turbolinks: false }
-        = link_to "家事代行", housekeeping_path, data: { turbolinks: false }
-        = link_to "お役立ち記事", "/columns", data: { turbolinks: false }
-        = link_to "お問い合わせ", living_path(anchor: "inquiry"), data: { turbolinks: false }
+- krg_id = "krg-#{SecureRandom.hex(5)}"
 
-  section.jw-hero
-    .jw-hero__grid
-      .jw-hero__copy
-        h1
-          | 育児も家事も、
-          br
-          | 信頼できるプロに任せる
-        p.jw-hero__stats-text
-          | ベビーシッター・家事代行なら
-          span.jw-hero__num Kurasera
-        .jw-hero__cta
-          = link_to "サービスを見る", living_path, class: "jw-btn jw-btn--primary", data: { turbolinks: false }
-          = link_to "家事代行を依頼", housekeeping_path, class: "jw-btn jw-btn--ghost", data: { turbolinks: false }
-      .jw-hero__visual
-        = image_tag "babysitter-image1.png", alt: "暮らしを支えるスタッフ"
+section.krg-switch aria-label="クラセラのサービスを選ぶ"
+  .krg-switch__canvas
 
-  .jw-main
-    section.jw-doors
-      .jw-door-grid
-        article.jw-door
-          p.jw-door__label
-            span.jw-door__num 1
-            | 暮らしサポート
-          .jw-door__icon aria-hidden="true"
-            svg viewBox="0 0 64 64" width="64" height="64"
-              rect x="12" y="24" width="40" height="28" rx="3" fill="#1a73e8"
-              polygon points="32,10 8,26 12,26 12,24 52,24 52,26 56,26" fill="#3d8bfd"
-              rect x="28" y="36" width="8" height="16" fill="#fff"
-          h2 総合のご案内
-          p ベビーシッターから家事代行まで。暮らしの負担を軽くするサービスをご紹介します。
-          = link_to "詳しく見る  ›", living_path, class: "jw-door__btn", data: { turbolinks: false }
+    / 写真・曲線。文字とは別レイヤーです。
+    svg.krg-switch__art viewBox="0 0 1586 992" preserveAspectRatio="none" aria-hidden="true" focusable="false"
+      defs
+        clipPath id="#{krg_id}-home"
+          path d="M0 91 C160 85 245 178 442 223 C593 258 710 270 770 340 C820 400 771 513 752 614 C731 713 775 755 806 782 C545 901 254 858 0 700 Z"
 
-        article.jw-door
-          p.jw-door__label
-            span.jw-door__num 2
-            | 家事代行
-          .jw-door__icon aria-hidden="true"
-            svg viewBox="0 0 64 64" width="64" height="64"
-              rect x="14" y="18" width="36" height="32" rx="4" fill="#e8f1ff"
-              rect x="14" y="18" width="36" height="32" rx="4" stroke="#1a73e8" stroke-width="3" fill="none"
-              circle cx="32" cy="34" r="8" fill="#1a73e8"
-              rect x="28" y="42" width="8" height="8" fill="#3d8bfd"
-          h2 ハウスキーピング
-          p 掃除・洗濯・整理整頓まで。忙しい毎日を支える家事代行です。
-          = link_to "詳しく見る  ›", housekeeping_path, class: "jw-door__btn", data: { turbolinks: false }
+        clipPath id="#{krg_id}-baby"
+          path d="M1586 68 C1432 64 1350 176 1165 220 C1034 252 915 243 854 285 C793 328 818 404 783 514 C753 612 734 687 784 737 C909 855 1284 905 1586 700 Z"
 
-        article.jw-door
-          p.jw-door__label
-            span.jw-door__num 3
-            | お役立ち記事
-          .jw-door__icon aria-hidden="true"
-            svg viewBox="0 0 64 64" width="64" height="64"
-              rect x="14" y="8" width="36" height="48" rx="4" fill="#e8f1ff"
-              rect x="14" y="8" width="36" height="48" rx="4" stroke="#1a73e8" stroke-width="3" fill="none"
-              rect x="22" y="20" width="20" height="3" rx="1.5" fill="#1a73e8"
-              rect x="22" y="28" width="20" height="3" rx="1.5" fill="#1a73e8"
-              rect x="22" y="36" width="14" height="3" rx="1.5" fill="#8bb4f5"
-          h2 暮らすをサポート
-          p 育児・家事のヒントやサービス選びのポイントをまとめています。
-          = link_to "記事を読む  ›", "/columns", class: "jw-door__btn jw-door__btn--ghost", data: { turbolinks: false }
+        linearGradient id="#{krg_id}-blue" x1="0%" y1="0%" x2="85%" y2="100%"
+          stop offset="0%" stop-color="#188ee7"
+          stop offset="65%" stop-color="#22aff0"
+          stop offset="100%" stop-color="#a6e8ff"
 
-    ul.jw-stats
-      li
-        .jw-stats__icon aria-hidden="true"
-          svg viewBox="0 0 48 48" width="40" height="40"
-            circle cx="16" cy="16" r="6" fill="#1a73e8"
-            circle cx="32" cy="16" r="6" fill="#3d8bfd"
-            path d="M6 36c1.5-7 6-11 10-11s8.5 4 10 11" fill="#1a73e8"
-            path d="M22 36c1.5-7 6-11 10-11s8.5 4 10 11" fill="#3d8bfd"
-        div
-          strong 厳選スタッフ
-          span 独自審査を通過した人材
-      li
-        .jw-stats__icon aria-hidden="true"
-          svg viewBox="0 0 48 48" width="40" height="40"
-            rect x="8" y="26" width="8" height="14" rx="2" fill="#8bb4f5"
-            rect x="20" y="18" width="8" height="22" rx="2" fill="#3d8bfd"
-            rect x="32" y="10" width="8" height="30" rx="2" fill="#1a73e8"
-        div
-          strong 3つのサービス
-          span シッター・外国人・家事代行
-      li
-        .jw-stats__icon aria-hidden="true"
-          svg viewBox="0 0 48 48" width="40" height="40"
-            path d="M24 6c-8 0-14 6-14 14 0 10 14 22 14 22s14-12 14-22c0-8-6-14-14-14z" fill="#1a73e8"
-            circle cx="24" cy="20" r="5" fill="#fff"
-        div
-          strong 全国対応
-          span スポットから定期まで
+        radialGradient id="#{krg_id}-green" cx="43%" cy="50%" r="77%"
+          stop offset="0%" stop-color="#fcffe4"
+          stop offset="58%" stop-color="#efffc0"
+          stop offset="100%" stop-color="#c9ef76"
 
-    .sp-company
-      .sp-company-inner
-        h2 会社概要
-        .sp-table
-          .sp-row
-            .sp-th 会社名
-            .sp-td 株式会社J Work
-          .sp-row
-            .sp-th 代表取締役
-            .sp-td 奥山　健太
-          .sp-row
-            .sp-th 資本金
-            .sp-td 5,000,000円
-          .sp-row
-            .sp-th 所在地
-            .sp-td 東京都港区浜松町２丁目２番１５号２Ｆ
+        linearGradient id="#{krg_id}-blue-wave" x1="0%" y1="0%" x2="100%" y2="0%"
+          stop offset="0%" stop-color="#8edbfa"
+          stop offset="55%" stop-color="#75d2f7"
+          stop offset="100%" stop-color="#b6ebfc"
 
-  footer.jw-footer
-    .jw-footer__inner
-      p.jw-footer__heading サービス
-      ul.jw-footer__list
-        li = link_to "トップ", root_path, data: { turbolinks: false }
-        li = link_to "暮らしサポート", living_path, data: { turbolinks: false }
-        li = link_to "ベビーシッター", baby_path, data: { turbolinks: false }
-        li = link_to "外国人シッター", babysitter_path, data: { turbolinks: false }
-        li = link_to "家事代行", housekeeping_path, data: { turbolinks: false }
-        li = link_to "お役立ち記事", "/columns", data: { turbolinks: false }
-    p.jw-footer__copy &copy; #{Time.current.year} 株式会社J Work / kurasera.life
+        linearGradient id="#{krg_id}-green-wave" x1="0%" y1="0%" x2="100%" y2="0%"
+          stop offset="0%" stop-color="#a1e0fc"
+          stop offset="43%" stop-color="#f5ffd5"
+          stop offset="100%" stop-color="#beed5c"
+
+        linearGradient id="#{krg_id}-line" x1="0%" y1="0%" x2="100%" y2="0%"
+          stop offset="0%" stop-color="#bcecff"
+          stop offset="45%" stop-color="#77c8fa"
+          stop offset="100%" stop-color="#a2d92d"
+
+      / 画面上端の淡い曲線
+      path d="M0 91 C170 84 254 189 444 226 L359 272 C196 181 94 151 0 171 Z" fill="#a4e4fd"
+      path d="M1586 68 C1422 61 1364 175 1172 225 L1225 272 C1385 185 1470 133 1586 152 Z" fill="#e0f7af"
+
+      / 人物だけでなく室内背景を含む写真
+      image href=asset_path("bg_homecare.jpg") x="0" y="140" width="850" height="730" preserveAspectRatio="xMidYMid slice" clip-path="url(##{krg_id}-home)"
+      image href=asset_path("bg_babysitter.jpg") x="746" y="188" width="840" height="680" preserveAspectRatio="xMidYMid slice" clip-path="url(##{krg_id}-baby)"
+
+      / 左側の青い面
+      path d="M0 169 C97 147 177 182 250 239 C338 307 390 398 390 478 C390 588 229 668 0 710 Z" fill="url(##{krg_id}-blue)"
+
+      / 右側の黄緑の面
+      path d="M1586 153 C1487 132 1391 160 1309 216 C1219 278 1163 355 1164 432 C1165 552 1323 654 1473 701 L1586 612 Z" fill="url(##{krg_id}-green)"
+
+      / 写真の下を通る曲線。左右それぞれ専用の形状です。
+      path d="M0 699 C218 815 483 925 807 782 L834 820 C557 952 246 859 0 772 Z" fill="url(##{krg_id}-blue-wave)"
+      path d="M784 737 C960 883 1305 873 1586 613 L1586 738 C1313 908 974 888 810 794 Z" fill="url(##{krg_id}-green-wave)"
+
+      / 見出し下の青～黄緑の曲線
+      path d="M484 171 C691 83 857 124 1011 148 C1076 160 1117 158 1151 140 C1116 164 1075 162 1010 154 C823 126 702 99 484 171 Z" fill="url(##{krg_id}-line)"
+      path d="M1150 139 C1143 111 1173 90 1215 87 C1205 121 1185 143 1155 139 C1168 125 1184 111 1197 104 C1174 115 1160 128 1150 150 Z" fill="#abd400"
+      path d="M1149 142 C1133 143 1128 133 1137 121 C1147 123 1152 132 1149 142 Z" fill="#b2d924"
+
+    / 公式ロゴ
+    = image_tag "logo_kurasera.png",
+      class: "krg-switch__logo",
+      alt: "クラセラ",
+      width: 600,
+      height: 192,
+      loading: "eager"
+
+    / 見出しは画像化せず、必ずHTMLの文字として表示
+    h1.krg-switch__headline
+      span.krg-switch__headline-a 暮らしに、
+      span.krg-switch__headline-b 安心とゆとりを。
+
+    p.krg-switch__lead
+      span.krg-switch__rays.krg-switch__rays--left aria-hidden="true"
+        i
+        i
+        i
+      span ご希望のサービスをお選びください
+      span.krg-switch__rays.krg-switch__rays--right aria-hidden="true"
+        i
+        i
+        i
+
+    / 家事代行
+    .krg-switch__service.krg-switch__service--home
+      = image_tag "icon_homecare.svg",
+        class: "krg-switch__icon",
+        alt: "",
+        width: 120,
+        height: 120
+
+      h2.krg-switch__name 家事代行
+      p.krg-switch__description 掃除・洗濯・料理をサポート
+
+      = link_to "/home-care", class: "krg-switch__button", aria: { label: "家事代行を詳しく見る" } do
+        span 詳しく見る
+        span.krg-switch__arrow aria-hidden="true"
+
+    / ベビーシッター
+    .krg-switch__service.krg-switch__service--baby
+      = image_tag "icon_babysitter.svg",
+        class: "krg-switch__icon",
+        alt: "",
+        width: 120,
+        height: 120
+
+      h2.krg-switch__name ベビーシッター
+      p.krg-switch__description 大切なお子さまを安心サポート
+
+      = link_to "/babysitter", class: "krg-switch__button", aria: { label: "ベビーシッターを詳しく見る" } do
+        span 詳しく見る
+        span.krg-switch__arrow aria-hidden="true"
+
+    / 葉の装飾
+    .krg-switch__leaves aria-hidden="true"
+      - 8.times do |i|
+        = image_tag "icon_leaf.svg",
+          class: "krg-switch__leaf krg-switch__leaf--#{i + 1}",
+          alt: ""
+
+    / 街並みは外部SVGの余白や縦横比に依存させず、全幅に描画
+    svg.krg-switch__city viewBox="0 0 1586 150" preserveAspectRatio="none" aria-hidden="true" focusable="false"
+      path d="M0 70 C87 37 126 39 193 81 C282 136 315 122 406 75 C495 29 517 81 604 103 C731 140 775 77 880 94 C974 109 982 125 1088 100 C1220 68 1345 47 1488 16 C1531 7 1558 21 1586 34 L1586 150 L0 150 Z" fill="#dff4ff"
+      path d="M258 150 C350 108 402 135 463 86 C524 31 568 53 622 109 C660 146 704 123 759 106 C824 77 839 126 902 132 L1015 150 Z" fill="#e8f8ce"
+
+      / ビル
+      - [[208, 53, 73, 98], [625, 62, 45, 89], [728, 73, 70, 78], [1040, 42, 51, 109]].each do |x, y, w, h|
+        g
+          rect x=x y=y width=w height=h rx="2" fill="#afe4fb"
+          rect x=(x + 11) y=(y - 10) width=(w * 0.56) height="13" rx="2" fill="#afe4fb"
+          - 3.times do |row|
+            - 2.times do |col|
+              rect x=(x + 12 + col * 24) y=(y + 13 + row * 24) width="9" height="11" fill="#f4fcff"
+
+      / 木
+      - [[59, 99, 0.65], [112, 84, 0.85], [333, 71, 1.15], [388, 85, 0.9], [706, 109, 0.7], [904, 98, 0.85], [989, 78, 1.0], [1132, 89, 0.85], [1191, 57, 1.15], [1507, 75, 1.0], [1550, 88, 0.9]].each do |x, y, scale|
+        g transform="translate(#{x} #{y}) scale(#{scale})"
+          path d="M-17 17 C-26 5 -23 -11 -15 -18 C-14 -34 1 -38 10 -27 C24 -24 28 -7 20 4 C26 20 13 31 0 30 C-8 31 -15 25 -17 17 Z" fill="#b6e78f"
+          path d="M0 10 L0 57" fill="none" stroke="#b6d49b" stroke-width="5"
+
+      / 前景の波は根元だけに重ねる
+      path d="M0 120 C112 152 126 87 231 118 C334 149 371 147 459 111 C543 78 589 158 733 140 C871 123 944 114 1024 137 C1133 168 1265 64 1392 65 C1470 63 1520 126 1586 125 L1586 150 L0 150 Z" fill="#91d8fa"
