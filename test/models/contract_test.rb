@@ -60,4 +60,27 @@ class ContractTest < ActiveSupport::TestCase
 
     assert_not contract.spam_inquiry?
   end
+
+  test "bot inquiry is spam even without origin" do
+    contract = Contract.new(
+      name: "fnmdvsddmk",
+      tel: "+1-169-353-1914",
+      address: "jsenwewdxt",
+      email: "shub_c@yahoo.com",
+      message: "gfqrdkehinlgfyqwegoyyikisxfmsk"
+    )
+
+    assert contract.spam_inquiry?
+  end
+
+  test "honeypot website field is treated as spam" do
+    contract = Contract.new(
+      name: "山田太郎",
+      tel: "050-1234-5678",
+      address: "東京都港区芝5-27-3",
+      website: "http://spam.example"
+    )
+
+    assert contract.spam_inquiry?
+  end
 end

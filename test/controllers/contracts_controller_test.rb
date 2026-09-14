@@ -55,4 +55,23 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/living?sent=1"
     assert_empty ActionMailer::Base.deliveries
   end
+
+  test "spam inquiry without origin is dropped without saving or mailing" do
+    ActionMailer::Base.deliveries.clear
+
+    assert_no_difference "Contract.count" do
+      post contracts_path, params: {
+        contract: {
+          name: "fnmdvsddmk",
+          tel: "+1-169-353-1914",
+          address: "jsenwewdxt",
+          email: "shub_c@yahoo.com",
+          message: "gfqrdkehinlgfyqwegoyyikisxfmsk"
+        }
+      }
+    end
+
+    assert_redirected_to "/?sent=1"
+    assert_empty ActionMailer::Base.deliveries
+  end
 end

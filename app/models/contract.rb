@@ -14,7 +14,7 @@ class Contract < ApplicationRecord
   }.freeze
   PRICE_COMMON_ADD = 200
 
-  attr_accessor :weekly_days, :daily_hours
+  attr_accessor :weekly_days, :daily_hours, :website
 
   CJK_CHAR = /[\p{Han}\p{Hiragana}\p{Katakana}]/.freeze
 
@@ -24,7 +24,7 @@ class Contract < ApplicationRecord
   before_validation :assign_service_from_inquiry
 
   def spam_inquiry?
-    return false if origin.blank?
+    return true if website.to_s.strip.present?
 
     name_without_japanese? ||
       foreign_or_invalid_tel? ||
@@ -97,7 +97,7 @@ class Contract < ApplicationRecord
 
   def foreign_or_invalid_tel?
     digits = tel.to_s.gsub(/[^0-9+]/, '')
-    return true if digits.blank?
+    return false if digits.blank?
     return true if digits.start_with?('+') && !digits.start_with?('+81')
 
     national = digits.sub(/\A\+81/, '0')
@@ -105,7 +105,10 @@ class Contract < ApplicationRecord
   end
 
   def address_without_japanese?
-    !address.to_s.match?(CJK_CHAR)
+    text = address.to_s.strip
+    return false if text.blank?
+
+    !text.match?(CJK_CHAR)
   end
 
   def latin_gibberish_message?

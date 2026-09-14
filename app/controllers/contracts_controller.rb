@@ -95,6 +95,7 @@ end
       :period, #導入時期
       :message, #備考
       :origin,
+      :website,
       )
     end
 end

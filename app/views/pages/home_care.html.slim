@@ -675,6 +675,7 @@
         - else
           = form_with model: @contract, url: contracts_path, local: true, html: { class: 'kh-form kh-quote', id: 'home-care-quote' } do |f|
             = f.hidden_field :origin, value: request.path
+            = render 'contracts/honeypot', f: f
             .kh-quote__main
               fieldset.kh-quote__group
                 legend ご利用条件
